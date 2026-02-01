@@ -1,0 +1,25 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@animate-ui/components-base-files": [
+        "./src/components/animate-ui/components/radix/files.tsx"
+      ],
+      "@animate-ui/components-buttons-theme-toggler": [
+        "./src/components/animate-ui/components/buttons/theme-toggler.tsx"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  }
+}

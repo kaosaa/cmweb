@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" /> <!-- Indigo -->
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" /> <!-- Purple -->
+    </linearGradient>
+    <linearGradient id="gloss" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+    <filter id="dropshadow" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15"/>
+      <feOffset dx="0" dy="10" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Base Shape: Squircle -->
+  <rect x="32" y="32" width="448" height="448" rx="120" ry="120" fill="url(#glassGrad)" filter="url(#dropshadow)" />
+  
+  <!-- Gloss Effect (Top Half) -->
+  <path d="M 32 152 Q 256 250 480 152 V 152 A 120 120 0 0 0 360 32 H 152 A 120 120 0 0 0 32 152 Z" fill="url(#gloss)" />
+
+  <!-- Text "CM" -->
+  <g transform="translate(256, 256)">
+    <text x="0" y="0" 
+          font-family="Arial, sans-serif" 
+          font-weight="bold" 
+          font-size="240" 
+          fill="white" 
+          text-anchor="middle" 
+          dominant-baseline="central" 
+          style="text-shadow: 0px 4px 10px rgba(0,0,0,0.2); letter-spacing: -10px;">
+      CM
+    </text>
+  </g>
+</svg>

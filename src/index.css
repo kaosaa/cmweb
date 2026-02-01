@@ -1,0 +1,295 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Roboto", "Segoe UI", system-ui, sans-serif;
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-full: 9999px;
+
+  --color-background: var(--md-sys-color-background);
+  --color-foreground: var(--md-sys-color-on-background);
+  
+  --color-card: var(--md-sys-color-surface-container);
+  --color-card-foreground: var(--md-sys-color-on-surface);
+  
+  --color-popover: var(--md-sys-color-surface-container-high);
+  --color-popover-foreground: var(--md-sys-color-on-surface);
+  
+  --color-primary: var(--md-sys-color-primary);
+  --color-primary-foreground: var(--md-sys-color-on-primary);
+  
+  --color-secondary: var(--md-sys-color-secondary);
+  --color-secondary-foreground: var(--md-sys-color-on-secondary);
+  
+  --color-muted: var(--md-sys-color-surface-variant);
+  --color-muted-foreground: var(--md-sys-color-on-surface-variant);
+  
+  --color-accent: var(--md-sys-color-tertiary);
+  --color-accent-foreground: var(--md-sys-color-on-tertiary);
+  
+  --color-destructive: var(--md-sys-color-error);
+  --color-destructive-foreground: var(--md-sys-color-on-error);
+  
+  --color-border: var(--md-sys-color-outline);
+  --color-input: var(--md-sys-color-outline-variant);
+  --color-ring: var(--md-sys-color-primary);
+
+  /* Custom MD3 Surface Tones */
+  --color-surface-dim: var(--md-sys-color-surface-dim);
+  --color-surface: var(--md-sys-color-surface);
+  --color-surface-bright: var(--md-sys-color-surface-bright);
+  --color-surface-container-lowest: var(--md-sys-color-surface-container-lowest);
+  --color-surface-container-low: var(--md-sys-color-surface-container-low);
+  --color-surface-container: var(--md-sys-color-surface-container);
+  --color-surface-container-high: var(--md-sys-color-surface-container-high);
+  --color-surface-container-highest: var(--md-sys-color-surface-container-highest);
+}
+
+:root {
+  /* Golden Ratio */
+  --golden-ratio: 1.61803398875;
+  --radius: 1.5rem; /* Large rounded corners for MD3 */
+
+  /* Font Settings - Configurable via JS */
+  --font-size-base: 16px;
+  --font-weight-normal: 450;
+  --font-weight-medium: 550;
+  --font-weight-bold: 650;
+
+  /* MD3 Light Theme - Based on a Deep Indigo/Violet Key Color */
+  --md-sys-color-primary: oklch(0.40 0.22 280); 
+  --md-sys-color-on-primary: oklch(1 0 0);
+  --md-sys-color-primary-container: oklch(0.92 0.08 280);
+  --md-sys-color-on-primary-container: oklch(0.25 0.15 280);
+
+  --md-sys-color-secondary: oklch(0.55 0.12 290);
+  --md-sys-color-on-secondary: oklch(1 0 0);
+  --md-sys-color-secondary-container: oklch(0.94 0.06 290);
+  --md-sys-color-on-secondary-container: oklch(0.30 0.10 290);
+
+  --md-sys-color-tertiary: oklch(0.50 0.18 340); /* Pinkish accent */
+  --md-sys-color-on-tertiary: oklch(1 0 0);
+  --md-sys-color-tertiary-container: oklch(0.95 0.06 340);
+  --md-sys-color-on-tertiary-container: oklch(0.30 0.12 340);
+
+  --md-sys-color-error: oklch(0.55 0.20 25);
+  --md-sys-color-on-error: oklch(1 0 0);
+  --md-sys-color-error-container: oklch(0.95 0.06 25);
+  --md-sys-color-on-error-container: oklch(0.25 0.15 25);
+
+  --md-sys-color-background: oklch(0.99 0.005 280);
+  --md-sys-color-on-background: oklch(0.15 0.02 280);
+
+  --md-sys-color-surface: oklch(0.99 0.005 280);
+  --md-sys-color-on-surface: oklch(0.15 0.02 280);
+  
+  --md-sys-color-surface-variant: oklch(0.92 0.02 280);
+  --md-sys-color-on-surface-variant: oklch(0.35 0.02 280);
+
+  --md-sys-color-outline: oklch(0.60 0.02 280);
+  --md-sys-color-outline-variant: oklch(0.85 0.02 280);
+
+  /* Surface Container Tones */
+  --md-sys-color-surface-dim: oklch(0.90 0.01 280);
+  --md-sys-color-surface-bright: oklch(0.99 0.002 280);
+  --md-sys-color-surface-container-lowest: oklch(1 0 0);
+  --md-sys-color-surface-container-low: oklch(0.97 0.005 280);
+  --md-sys-color-surface-container: oklch(0.95 0.01 280);
+  --md-sys-color-surface-container-high: oklch(0.93 0.015 280);
+  --md-sys-color-surface-container-highest: oklch(0.91 0.02 280);
+}
+
+.dark {
+  /* MD3 Dark Theme */
+  --md-sys-color-primary: oklch(0.80 0.15 280); /* Lighter for dark mode */
+  --md-sys-color-on-primary: oklch(0.20 0.12 280);
+  --md-sys-color-primary-container: oklch(0.35 0.15 280);
+  --md-sys-color-on-primary-container: oklch(0.95 0.08 280);
+
+  --md-sys-color-secondary: oklch(0.80 0.08 290);
+  --md-sys-color-on-secondary: oklch(0.20 0.06 290);
+  --md-sys-color-secondary-container: oklch(0.35 0.08 290);
+  --md-sys-color-on-secondary-container: oklch(0.95 0.05 290);
+
+  --md-sys-color-tertiary: oklch(0.85 0.12 340);
+  --md-sys-color-on-tertiary: oklch(0.20 0.10 340);
+  --md-sys-color-tertiary-container: oklch(0.35 0.10 340);
+  --md-sys-color-on-tertiary-container: oklch(0.95 0.05 340);
+
+  --md-sys-color-error: oklch(0.85 0.15 25);
+  --md-sys-color-on-error: oklch(0.20 0.10 25);
+  --md-sys-color-error-container: oklch(0.35 0.10 25);
+  --md-sys-color-on-error-container: oklch(0.95 0.05 25);
+
+  --md-sys-color-background: oklch(0.10 0.01 280);
+  --md-sys-color-on-background: oklch(0.95 0.02 280);
+
+  --md-sys-color-surface: oklch(0.10 0.01 280);
+  --md-sys-color-on-surface: oklch(0.95 0.02 280);
+
+  --md-sys-color-surface-variant: oklch(0.30 0.02 280);
+  --md-sys-color-on-surface-variant: oklch(0.80 0.02 280);
+
+  --md-sys-color-outline: oklch(0.55 0.02 280);
+  --md-sys-color-outline-variant: oklch(0.30 0.02 280);
+
+  /* Surface Container Tones (Dark) */
+  --md-sys-color-surface-dim: oklch(0.08 0.01 280);
+  --md-sys-color-surface-bright: oklch(0.25 0.01 280);
+  --md-sys-color-surface-container-lowest: oklch(0.06 0.01 280);
+  --md-sys-color-surface-container-low: oklch(0.12 0.01 280);
+  --md-sys-color-surface-container: oklch(0.15 0.015 280);
+  --md-sys-color-surface-container-high: oklch(0.20 0.02 280);
+  --md-sys-color-surface-container-highest: oklch(0.25 0.025 280);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-size: var(--font-size-base);
+  }
+  body {
+    @apply bg-background text-foreground tracking-wide;
+    /* Add a subtle gradient background to make glass effects visible */
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(var(--color-primary-rgb), 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(var(--color-tertiary-rgb), 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(var(--color-secondary-rgb), 0.03) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(var(--color-primary-rgb), 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
+    
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.65;
+  }
+
+  /* Apply font weights to common elements */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+  }
+  strong, b {
+    font-weight: var(--font-weight-bold);
+  }
+  .font-medium {
+    font-weight: var(--font-weight-medium) !important;
+  }
+  .font-semibold {
+    font-weight: var(--font-weight-medium) !important;
+  }
+  .font-bold {
+    font-weight: var(--font-weight-bold) !important;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Scrollbar */
+html, body, * {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--md-sys-color-outline-variant) transparent !important;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--md-sys-color-outline-variant);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--md-sys-color-outline);
+}
+
+html, body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* MD3 Elevation / Shadows */
+.elevation-1 {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+}
+.elevation-2 {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+}
+.elevation-3 {
+  box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.0, 0.0, 0.2, 1) forwards;
+}
+
+/* Golden Ratio Utilities */
+.aspect-golden {
+  aspect-ratio: 1.618 / 1;
+}
+.aspect-golden-portrait {
+  aspect-ratio: 1 / 1.618;
+}
+
+@layer components {
+  .glass-card {
+    @apply relative overflow-hidden transition-all duration-300;
+    /* Increased transparency for better glass effect */
+    background: rgba(255, 255, 255, 0.45); 
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.07),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark .glass-card {
+    background: rgba(30, 30, 35, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card-inverse {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .glass-card-inverse {
+    background: rgba(60, 60, 65, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+}
