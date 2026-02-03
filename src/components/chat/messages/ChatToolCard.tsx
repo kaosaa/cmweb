@@ -4,6 +4,7 @@ import { getInputPreview, getToolMeta } from '@/utils/tool-auth'
 import { getToolOutputPreview } from '@/utils/tool-payload'
 import { ChatDiffView } from './ChatDiffView'
 import { ToolPayloadView } from './ToolPayloadView'
+import { Terminal, ChevronDown } from 'lucide-react'
 
 type ChatToolCardProps = {
   message: ChatMessage
@@ -115,59 +116,82 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
 
   const outputPreview = isEditTool && editSummary ? editSummary : getToolOutputPreview(tool.output)
 
+  const isBashTool = tool.name === 'Bash'
+
   return (
-    <details className="rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 p-4 text-xs mb-2 transition-all open:ring-2 open:ring-white/30">
-      <summary className="cursor-pointer select-none font-medium flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
-          <span className="font-semibold">{meta.label}</span>
-          <code className="px-1.5 py-0.5 rounded bg-white/30 dark:bg-white/10 text-[10px] font-mono text-gray-600 dark:text-gray-400">
-            {tool.name}
-          </code>
-          {statusBadge}
+    <details className="rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-gray-200/50 dark:ring-transparent p-4 text-xs mb-2 transition-all open:ring-2 open:ring-gray-300/60 dark:open:ring-transparent group">
+      <summary className="cursor-pointer select-none font-medium text-gray-800 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors [&::-webkit-details-marker]:hidden list-none">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-3">
+              <span className="font-semibold">{meta.label}</span>
+              <code className="px-1.5 py-0.5 rounded bg-gray-100/60 dark:bg-white/10 text-[10px] font-mono text-gray-700 dark:text-gray-400">
+                {tool.name}
+              </code>
+              {statusBadge}
+              {!isBashTool && outputPreview && !isError ? (
+                <span className="text-gray-700 dark:text-gray-400 flex-1 min-w-0 break-words max-w-[180px]" title={tool.output || ''}>
+                  → {outputPreview}
+                </span>
+              ) : null}
+            </div>
+            {inputPreview && isBashTool ? (
+              <div className="rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 shadow-xl ring-1 ring-white/10">
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-500/20 backdrop-blur-sm shrink-0">
+                    <Terminal className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">命令</div>
+                    <code className="block font-mono text-[15px] text-green-400 break-all leading-relaxed">
+                      {inputPreview}
+                    </code>
+                  </div>
+                </div>
+              </div>
+            ) : inputPreview && !isBashTool ? (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-700 dark:text-gray-400 font-mono text-[11px] flex-1 min-w-0 break-words" title={inputPreview}>
+                  {inputPreview}
+                </span>
+              </div>
+            ) : null}
+          </div>
+          <ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180 text-gray-500 dark:text-gray-400" />
         </div>
-        {inputPreview ? (
-          <span className="text-gray-600 dark:text-gray-400 font-mono text-[11px] flex-1 min-w-0 break-words" title={inputPreview}>
-            {inputPreview}
-          </span>
-        ) : null}
-        {outputPreview && !isError ? (
-          <span className="text-gray-600 dark:text-gray-400 flex-1 min-w-0 break-words max-w-[180px]" title={tool.output || ''}>
-            → {outputPreview}
-          </span>
-        ) : null}
       </summary>
-      <div className="mt-3 space-y-3 pl-3 border-l-2 border-white/20 dark:border-white/10 ml-1">
+      <div className="mt-4 space-y-5 pl-3 border-l-2 border-gray-200/60 dark:border-transparent ml-1">
         {isEditTool && editInput?.old_string != null && editInput?.new_string != null ? (
           <div>
             {editInput.file_path ? (
-              <div className="mb-2 text-[10px] font-semibold text-gray-600 dark:text-gray-400 font-mono">{toRelativePath(editInput.file_path, cwd)}</div>
+              <div className="mb-2 text-[10px] font-semibold text-gray-700 dark:text-gray-400 font-mono">{toRelativePath(editInput.file_path, cwd)}</div>
             ) : null}
             <ChatDiffView oldStr={editInput.old_string} newStr={editInput.new_string} />
           </div>
         ) : hasInput ? (
           <div>
-            <div className="mb-1 text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">参数</div>
+            <div className="mb-1 text-[10px] font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">参数</div>
             <ToolPayloadView value={tool.input} />
           </div>
         ) : null}
         {hasOutput ? (
           <div>
-            <div className="mb-1 text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
+            <div className="mb-1 text-[10px] font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
               结果
               {isRefused ? (
                 <span className="text-gray-500 dark:text-gray-500">(已拒绝)</span>
               ) : isError ? (
-                <span className="text-red-500 dark:text-red-400">(错误)</span>
+                <span className="text-red-600 dark:text-red-400">(错误)</span>
               ) : null}
             </div>
             <div
               className={cn(
                 'rounded-lg p-2.5 backdrop-blur-sm',
                 isRefused
-                  ? 'bg-white/20 dark:bg-white/5 text-gray-600 dark:text-gray-400 ring-1 ring-white/20'
+                  ? 'bg-gray-100/60 dark:bg-white/5 text-gray-700 dark:text-gray-400 ring-1 ring-gray-200/50 dark:ring-transparent'
                   : isError
-                    ? 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20'
-                    : 'bg-white/30 dark:bg-white/10 text-gray-700 dark:text-gray-300 ring-1 ring-white/20',
+                    ? 'bg-red-500/10 text-red-700 dark:text-red-400 ring-1 ring-red-300/40 dark:ring-transparent'
+                    : 'bg-gray-50/60 dark:bg-white/10 text-gray-800 dark:text-gray-300 ring-1 ring-gray-200/50 dark:ring-transparent',
               )}
             >
               <ToolPayloadView value={tool.output} />

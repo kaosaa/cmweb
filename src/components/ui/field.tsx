@@ -11,7 +11,7 @@ const Field = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex gap-3 rounded-lg border border-input bg-background px-3 py-2.5 transition-colors has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-zinc-800",
+        "flex gap-3 rounded-lg border border-input bg-background px-3 py-2.5 transition-colors has-[:focus-visible]:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-gray-100/80 dark:[&:has([data-state=checked])]:bg-zinc-800",
         orientation === "horizontal" ? "flex-row items-center justify-between" : "flex-col",
         className
       )}

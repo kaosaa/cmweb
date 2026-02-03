@@ -189,9 +189,9 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
       onPointerUp={onDragEnd}
       onPointerCancel={onDragEnd}
       className={cn(
-        'flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold shadow-sm transition-all',
-        'bg-surface-container-high/80 backdrop-blur-md hover:bg-surface-container-highest/80',
-        'border-outline-variant/15 text-on-surface-variant',
+        'flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold shadow-lg transition-all',
+        'bg-gradient-to-br from-gray-50/95 to-gray-100/90 hover:from-gray-100/95 hover:to-gray-200/90 border-gray-300/60 text-gray-700 backdrop-blur-md',
+        'dark:bg-none dark:bg-surface-container-high/80 dark:hover:bg-surface-container-highest/80 dark:border-outline-variant/15 dark:text-on-surface-variant',
       )}
       title="打开任务列表"
     >
@@ -223,7 +223,11 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
       onPointerUp={onDragEnd}
       onPointerCancel={onDragEnd}
     >
-      <div className="relative rounded-2xl border-0 bg-black shadow-2xl">
+      <div className={cn(
+        "relative rounded-2xl border-0 shadow-2xl",
+        "bg-gradient-to-br from-gray-50/95 via-white/90 to-gray-100/95 backdrop-blur-xl ring-1 ring-gray-300/70",
+        "dark:bg-none dark:bg-black dark:backdrop-blur-0 dark:ring-transparent"
+      )}>
         <GlowingEffect
           disabled={false}
           proximity={64}
@@ -235,7 +239,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
         />
         <div className="relative z-10 rounded-2xl overflow-hidden">
           <div
-            className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/50 cursor-grab active:cursor-grabbing select-none backdrop-blur-sm"
+            className="flex items-center justify-between px-4 py-3 border-b border-gray-300/70 cursor-grab active:cursor-grabbing select-none dark:border-zinc-800/50 dark:backdrop-blur-sm"
             onPointerDown={(e) => {
               // 如果点击的是关闭按钮，不触发拖拽
               if ((e.target as HTMLElement).closest('button[title="最小化"]')) return
@@ -247,7 +251,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
             <div
               className={cn(
                 'shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-lg',
-                'text-zinc-500',
+                'text-gray-500 dark:text-zinc-500',
               )}
             >
               <GripVertical className="w-4 h-4" />
@@ -255,13 +259,13 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
             <ListTodo className="w-4 h-4 text-primary shrink-0" />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white truncate">Todos</span>
-                <span className="text-xs text-zinc-400 shrink-0">
+                <span className="text-sm font-semibold text-gray-800 truncate dark:text-white">Todos</span>
+                <span className="text-xs text-gray-600 shrink-0 dark:text-zinc-400">
                   {completed}/{total}
                 </span>
-                <span className="text-[10px] text-zinc-500 shrink-0">{progressPct}%</span>
+                <span className="text-[10px] text-gray-500 shrink-0 dark:text-zinc-500">{progressPct}%</span>
               </div>
-              <div className="h-1.5 mt-1 rounded-full bg-zinc-800/50 overflow-hidden">
+              <div className="h-1.5 mt-1 rounded-full bg-gray-300/80 overflow-hidden dark:bg-zinc-800/50">
                 <div className="h-full bg-gradient-to-r from-primary/70 to-primary transition-all duration-300" style={{ width: `${progressPct}%` }} />
               </div>
             </div>
@@ -271,7 +275,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+            className="h-8 w-8 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-300/60 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800/50"
             onClick={() => onOpenChange(false)}
             title="最小化"
           >
@@ -290,7 +294,8 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                   key={t.id}
                   className={cn(
                     'rounded-xl border px-3 py-2.5 text-xs transition-all duration-200',
-                    'border-zinc-800/50 bg-zinc-900/50 backdrop-blur-sm hover:bg-zinc-800/50 hover:border-zinc-700/50',
+                    'border-gray-300/70 bg-gradient-to-br from-gray-50/80 to-white/70 hover:from-gray-100/90 hover:to-white/80 hover:border-gray-400/70',
+                    'dark:bg-none dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:backdrop-blur-sm dark:hover:bg-zinc-800/50 dark:hover:border-zinc-700/50',
                   )}
                 >
                   <div className="flex items-start gap-2.5">
@@ -301,20 +306,20 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                           ? 'text-green-500'
                           : t.status === 'in_progress'
                             ? 'text-primary animate-spin'
-                            : 'text-zinc-600',
+                            : 'text-gray-400 dark:text-zinc-600',
                       )}
                     />
                     <div className="min-w-0 flex-1">
                       <div
                         className={cn(
-                          'text-white break-words leading-relaxed',
-                          t.status === 'completed' && 'line-through text-zinc-500',
+                          'text-gray-800 break-words leading-relaxed dark:text-white',
+                          t.status === 'completed' && 'line-through text-gray-500 dark:text-zinc-500',
                         )}
                       >
                         {t.content || '(空)'}
                       </div>
                       {t.activeForm ? (
-                        <div className="mt-1.5 text-[11px] text-zinc-500 truncate" title={t.activeForm}>
+                        <div className="mt-1.5 text-[11px] text-gray-600 truncate dark:text-zinc-500" title={t.activeForm}>
                           {t.activeForm}
                         </div>
                       ) : null}
@@ -323,10 +328,10 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                       className={cn(
                         'shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border',
                         t.status === 'completed'
-                          ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                          ? 'bg-green-500/15 text-green-600 border-green-500/40 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/30'
                           : t.status === 'in_progress'
-                            ? 'bg-primary/10 text-primary border-primary/30'
-                            : 'bg-zinc-800/50 text-zinc-500 border-zinc-700/50',
+                            ? 'bg-primary/15 text-primary border-primary/40 dark:bg-primary/10 dark:border-primary/30'
+                            : 'bg-gray-300/70 text-gray-700 border-gray-400/60 dark:bg-zinc-800/50 dark:text-zinc-500 dark:border-zinc-700/50',
                       )}
                       title={`status=${t.status}`}
                     >
@@ -342,14 +347,15 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
               <div
                 className={cn(
                   'rounded-xl border px-3 py-2.5 text-xs transition-all duration-200',
-                  'border-zinc-800/50 bg-zinc-900/50 backdrop-blur-sm hover:bg-zinc-800/50 hover:border-zinc-700/50',
+                  'border-gray-300/70 bg-gradient-to-br from-gray-50/80 to-white/70 hover:from-gray-100/90 hover:to-white/80 hover:border-gray-400/70',
+                  'dark:bg-none dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:backdrop-blur-sm dark:hover:bg-zinc-800/50 dark:hover:border-zinc-700/50',
                 )}
               >
                 <div className="flex items-start gap-2.5">
                   <button
                     type="button"
                     onClick={() => setSessionInfoCollapsed(!sessionInfoCollapsed)}
-                    className="shrink-0 mt-0.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                    className="shrink-0 mt-0.5 text-gray-600 hover:text-gray-800 transition-colors dark:text-zinc-500 dark:hover:text-zinc-300"
                   >
                     {sessionInfoCollapsed ? (
                       <ChevronRight className="w-4 h-4" />
@@ -358,15 +364,15 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                     )}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <div className="text-white break-words leading-relaxed font-semibold">
+                    <div className="text-gray-800 break-words leading-relaxed font-semibold dark:text-white">
                       当前会话
                     </div>
                     {!sessionInfoCollapsed && (
                       <div className="mt-2 space-y-1.5">
-                        <div className="text-zinc-300 truncate" title={activeSession.title}>
+                        <div className="text-gray-700 truncate dark:text-zinc-300" title={activeSession.title}>
                           {activeSession.title}
                         </div>
-                        <div className="flex items-center gap-2.5 text-[10px] text-zinc-400">
+                        <div className="flex items-center gap-2.5 text-[10px] text-gray-600 dark:text-zinc-400">
                           {activeModel && (
                             <div className="flex items-center gap-1">
                               <span className={cn('w-1 h-1 rounded-full', thinking ? 'bg-tertiary' : 'bg-primary')} />
@@ -386,7 +392,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                   <div
                     className={cn(
                       'shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border',
-                      'bg-blue-500/10 text-blue-400 border-blue-500/30',
+                      'bg-blue-500/15 text-blue-600 border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/30',
                     )}
                   >
                     会话

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Modal } from '@/components/Modal'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { AlertTriangle, Check, ChevronDown, X } from 'lucide-react'
+import { AlertTriangle, Check, ChevronDown, X, Terminal } from 'lucide-react'
 import type { PermissionRequest } from '@/types/permissions'
 import { getInputPreview, getToolMeta, isDangerousTool } from '@/utils/tool-auth'
 
@@ -112,11 +112,27 @@ export function ToolAuthModal({
         </div>
 
         {preview && (
-          <div className="mx-6 mb-3 px-3 py-2.5 rounded-xl bg-surface-container-highest/40 border border-outline-variant/15">
-            <pre className="text-xs font-mono text-on-surface leading-relaxed whitespace-pre-wrap break-all overflow-hidden max-h-20">
-              {preview}
-            </pre>
-          </div>
+          request.toolName === 'Bash' ? (
+            <div className="mx-6 mb-3 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 shadow-xl ring-1 ring-white/10">
+              <div className="flex items-start gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-500/20 backdrop-blur-sm shrink-0">
+                  <Terminal className="w-4 h-4 text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">命令</div>
+                  <code className="block font-mono text-[13px] text-green-400 break-all leading-relaxed max-h-20 overflow-auto">
+                    {preview}
+                  </code>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-6 mb-3 px-3 py-2.5 rounded-xl bg-surface-container-highest/40 border border-outline-variant/15">
+              <pre className="text-xs font-mono text-on-surface leading-relaxed whitespace-pre-wrap break-all overflow-hidden max-h-20">
+                {preview}
+              </pre>
+            </div>
+          )
         )}
 
         <div className="px-6 pb-3">

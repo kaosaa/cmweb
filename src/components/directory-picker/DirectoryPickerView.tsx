@@ -61,12 +61,12 @@ export function DirectoryPickerView({
         </FolderTrigger>
 
         <FolderContent>
-          {nodeError ? <div className="px-2 py-2 text-sm text-red-400">{nodeError}</div> : null}
+          {nodeError ? <div className="px-2 py-2 text-sm text-red-600 dark:text-red-400">{nodeError}</div> : null}
 
-          {nodeLoading ? <div className="px-2 py-2 text-sm text-zinc-500">加载中…</div> : null}
+          {nodeLoading ? <div className="px-2 py-2 text-sm text-gray-600 dark:text-zinc-500">加载中…</div> : null}
 
           {!nodeLoading && children && children.length === 0 ? (
-            <div className="px-2 py-2 text-sm text-zinc-500">暂无子目录</div>
+            <div className="px-2 py-2 text-sm text-gray-600 dark:text-zinc-500">暂无子目录</div>
           ) : null}
 
           {children?.length ? <SubFiles>{children.map(renderDirectory)}</SubFiles> : null}
@@ -91,9 +91,9 @@ export function DirectoryPickerView({
       <Modal open={open} title="选择工作空间目录" onClose={closeModal} className="max-w-3xl">
         <div className="space-y-3">
           {/* Current path indicator */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-            <span className="text-xs text-zinc-400 shrink-0">当前目录：</span>
-            <code className="text-xs font-mono text-zinc-200 truncate flex-1" title={listing?.currentPath || pathInput}>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100/80 dark:bg-zinc-800/50 border border-gray-300/60 dark:border-zinc-700/50">
+            <span className="text-xs text-gray-600 dark:text-zinc-400 shrink-0">当前目录：</span>
+            <code className="text-xs font-mono text-gray-800 dark:text-zinc-200 truncate flex-1" title={listing?.currentPath || pathInput}>
               {listing?.currentPath || pathInput || '未选择'}
             </code>
           </div>
@@ -133,20 +133,20 @@ export function DirectoryPickerView({
             </Button>
           </div>
 
-          {error && <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">{error}</div>}
+          {error && <div className="rounded-md border border-red-300/50 dark:border-destructive/40 bg-red-50/80 dark:bg-destructive/10 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
 
-          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900/30">
-            <div className="border-b border-zinc-700/50 px-3 py-2 text-xs text-zinc-400 flex items-center justify-between">
+          <div className="rounded-lg border border-gray-300/60 dark:border-zinc-700/50 bg-gray-50/60 dark:bg-zinc-900/30">
+            <div className="border-b border-gray-300/60 dark:border-zinc-700/50 px-3 py-2 text-xs text-gray-600 dark:text-zinc-400 flex items-center justify-between">
               <span>目录列表 {loading ? '（加载中…）' : ''}</span>
             </div>
             {listing ? (
               listing.directories.length ? (
                 <Files className="max-h-[360px]">{listing.directories.map(renderDirectory)}</Files>
               ) : (
-                <div className="px-2 py-6 text-sm text-zinc-500">暂无子目录</div>
+                <div className="px-2 py-6 text-sm text-gray-600 dark:text-zinc-500">暂无子目录</div>
               )
             ) : (
-              <div className="px-2 py-6 text-sm text-zinc-500">{loading ? '加载中…' : '请选择一个目录'}</div>
+              <div className="px-2 py-6 text-sm text-gray-600 dark:text-zinc-500">{loading ? '加载中…' : '请选择一个目录'}</div>
             )}
           </div>
 
@@ -170,7 +170,7 @@ export function DirectoryPickerView({
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-white">文件夹名称</label>
+            <label className="text-sm font-medium text-gray-800 dark:text-white">文件夹名称</label>
             <Input
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
@@ -182,13 +182,13 @@ export function DirectoryPickerView({
                 }
               }}
             />
-            <p className="text-xs text-zinc-400">
-              将在 <code className="bg-zinc-800/50 px-1 py-0.5 rounded text-[10px]">{listing?.currentPath}</code> 下创建
+            <p className="text-xs text-gray-600 dark:text-zinc-400">
+              将在 <code className="bg-gray-100/80 dark:bg-zinc-800/50 px-1 py-0.5 rounded text-[10px]">{listing?.currentPath}</code> 下创建
             </p>
           </div>
 
           {createFolderError && (
-            <div className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="rounded-md border border-red-300/50 dark:border-red-500/40 bg-red-50/80 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-400">
               {createFolderError}
             </div>
           )}

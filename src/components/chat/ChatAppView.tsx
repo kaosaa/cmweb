@@ -122,11 +122,11 @@ export function ChatAppView({
           className={cn(
             'fixed bottom-6 right-6 z-30',
             'h-12 w-12 rounded-full',
-            'bg-black/40 backdrop-blur-xl',
-            'border border-white/10',
-            'shadow-2xl shadow-black/30',
+            'bg-white/70 dark:bg-black/40 backdrop-blur-xl',
+            'border border-gray-300/30 dark:border-white/10',
+            'shadow-2xl shadow-black/10 dark:shadow-black/30',
             'flex items-center justify-center',
-            'text-white/70 hover:text-white/90',
+            'text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white/90',
             'transition-all duration-300',
             'hover:scale-110 active:scale-95',
             'group'
@@ -167,7 +167,7 @@ export function ChatAppView({
               initial={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.3 }}
-              className="absolute bottom-0 left-0 right-4 p-4 md:p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20"
+              className="absolute bottom-0 left-0 right-4 p-4 md:p-6 bg-gradient-to-t from-white/90 via-white/40 to-transparent dark:from-black/80 dark:via-black/40 dark:to-transparent pointer-events-none z-20"
             >
               <div className="pointer-events-auto">
                 <ChatComposer
@@ -195,7 +195,7 @@ export function ChatAppView({
                 />
 
                 <div className="text-center mt-3 text-[10px] text-muted-foreground/60 font-medium tracking-wide">
-                  由 Claude Code CLI & CM 驱动
+                  由 Claude Manager 驱动
                 </div>
               </div>
             </motion.div>
@@ -212,12 +212,12 @@ export function ChatAppView({
         <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white ml-1 flex items-center gap-2">
-                <FolderOpen className="w-4 h-4 text-zinc-400" />
+              <label className="text-sm font-medium text-gray-800 dark:text-white ml-1 flex items-center gap-2">
+                <FolderOpen className="w-4 h-4 text-gray-600 dark:text-zinc-400" />
                 工作目录（CWD）
               </label>
               <DirectoryPicker value={newChatCwd} onChange={onChangeNewChatCwd} />
-              <p className="text-xs text-zinc-400 ml-1">AI 将可以读取该目录中的文件。</p>
+              <p className="text-xs text-gray-600 dark:text-zinc-400 ml-1">AI 将可以读取该目录中的文件。</p>
             </div>
           </div>
 
@@ -244,8 +244,8 @@ export function ChatAppView({
         className="max-w-sm p-0 overflow-hidden rounded-[28px]"
       >
         <div className="p-6">
-          <div className="text-sm text-zinc-300 leading-relaxed mb-6">
-            确定要删除 <span className="font-semibold text-white">"{deleteConfirm?.title ?? ''}"</span> 吗？此操作无法撤销。
+          <div className="text-sm text-gray-700 dark:text-zinc-300 leading-relaxed mb-6">
+            确定要删除 <span className="font-semibold text-gray-900 dark:text-white">"{deleteConfirm?.title ?? ''}"</span> 吗？此操作无法撤销。
           </div>
           <div className="flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={() => setDeleteConfirm(null)} className="rounded-full">

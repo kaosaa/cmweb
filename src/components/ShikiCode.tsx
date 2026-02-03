@@ -128,7 +128,7 @@ export const ShikiCode = memo(function ShikiCode({
 
   if (state.status === 'error' && state.key === inputKey) {
     return (
-      <div className={cn('px-4 py-4 text-xs text-destructive', className)}>
+      <div className={cn('px-4 py-4 text-xs text-red-600 dark:text-destructive', className)}>
         {state.message || '语法高亮失败'}
       </div>
     )
@@ -136,7 +136,7 @@ export const ShikiCode = memo(function ShikiCode({
 
   if (state.status !== 'ready' || state.key !== inputKey) {
     return (
-      <div className={cn('flex h-full min-h-0 items-center justify-center text-sm text-muted-foreground', className)}>
+      <div className={cn('flex h-full min-h-0 items-center justify-center text-sm text-gray-600 dark:text-muted-foreground', className)}>
         <span className="inline-flex items-center gap-2">
           <Spinner /> 渲染中…
         </span>

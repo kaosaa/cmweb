@@ -40,16 +40,17 @@ export function Modal({
         <div
           className={cn(
             'w-full max-w-2xl max-h-[calc(100vh-2rem)] rounded-2xl border shadow-2xl flex flex-col',
-            'bg-black/75 backdrop-blur-xl border-white/8',
+            'bg-gradient-to-br from-gray-50/98 via-white/95 to-gray-100/98 backdrop-blur-xl border-gray-300/60',
+            'dark:bg-none dark:bg-black/75 dark:backdrop-blur-xl dark:border-white/8',
             className,
           )}
         >
-          <div className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-3">
-            <div className="text-sm font-semibold text-white">{title}</div>
+          <div className="flex shrink-0 items-center justify-between border-b px-4 py-3 border-gray-300/60 dark:border-white/8">
+            <div className="text-sm font-semibold text-gray-800 dark:text-white">{title}</div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md px-2 py-1 text-sm text-zinc-400 hover:bg-zinc-700/50 hover:text-white transition-colors"
+              className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-200/60 hover:text-gray-900 dark:text-zinc-400 dark:hover:bg-zinc-700/50 dark:hover:text-white transition-colors"
             >
               关闭
             </button>

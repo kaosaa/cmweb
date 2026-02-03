@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Bot, ShieldAlert, Sparkles, User, CircleUser } from 'lucide-react'
+import { Bot, ShieldAlert, Sparkles, User, CircleUser, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
 import type { ChatMessage, ThinkingBlock } from '@/types/chat'
@@ -132,24 +132,27 @@ export function ChatMessageList({
         return (
           <div key={blockKey} className="w-full">
             <details
-              className="group rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 text-xs transition-all duration-200"
+              className="group rounded-2xl bg-white/70 dark:bg-black/75 backdrop-blur-xl shadow-lg ring-1 ring-gray-200/50 dark:ring-transparent text-xs transition-all duration-200"
               open={blockOpen}
               onToggle={(e) => {
                 const open = (e.currentTarget as HTMLDetailsElement | null)?.open ?? false
                 setThinkingOpenById((prev) => ({ ...prev, [blockKey]: open }))
               }}
             >
-              <summary className="cursor-pointer select-none font-medium flex items-center justify-between p-4 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-white/10 rounded-t-2xl group-[&:not([open])]:rounded-2xl transition-colors outline-none">
+              <summary className="cursor-pointer select-none font-medium flex items-center justify-between p-4 text-gray-800 dark:text-gray-300 hover:bg-gray-100/40 dark:hover:bg-white/10 rounded-t-2xl group-[&:not([open])]:rounded-2xl transition-colors outline-none [&::-webkit-details-marker]:hidden list-none">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   <span>
                     {isActive ? '正在思考...' : `思考过程 (${formatSeconds(tb.durationMs)})`}
                   </span>
                 </div>
-                {isActive && <Spinner className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />}
+                <div className="flex items-center gap-2">
+                  {isActive && <Spinner className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />}
+                  <ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180 text-gray-500 dark:text-gray-400" />
+                </div>
               </summary>
-              <div className="p-4 pt-0 border-t border-white/20 dark:border-white/10">
-                <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+              <div className="p-4 pt-0 border-t border-gray-200/60 dark:border-transparent">
+                <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-gray-700 dark:text-gray-400">
                   {tb.text || '...'}
                 </pre>
               </div>
@@ -162,22 +165,22 @@ export function ChatMessageList({
       const apiError = parseApiError(content)
       if (apiError.isError) {
         interleavedNodes.push(
-          <div key={`error-${m.id}`} className="rounded-2xl bg-red-500/10 backdrop-blur-xl shadow-lg ring-1 ring-red-500/20 p-4">
+          <div key={`error-${m.id}`} className="rounded-2xl bg-red-50/80 dark:bg-red-500/10 backdrop-blur-xl shadow-lg ring-1 ring-red-300/40 dark:ring-transparent p-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center shrink-0">
-                <ShieldAlert className="w-5 h-5 text-red-500 dark:text-red-400" />
+              <div className="w-10 h-10 rounded-full bg-red-100/80 dark:bg-red-500/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">{apiError.errorType}</span>
+                  <span className="text-sm font-semibold text-red-700 dark:text-red-400">{apiError.errorType}</span>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{apiError.message}</p>
+                <p className="text-sm text-gray-800 dark:text-gray-300 leading-relaxed break-words">{apiError.message}</p>
                 {apiError.details && apiError.details !== apiError.message ? (
                   <details className="mt-2">
-                    <summary className="text-xs text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200">
+                    <summary className="text-xs text-gray-700 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-gray-200">
                       查看详细信息
                     </summary>
-                    <pre className="mt-2 p-2 rounded-lg bg-white/30 dark:bg-white/10 backdrop-blur-sm text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto">
+                    <pre className="mt-2 p-2 rounded-lg bg-white/50 dark:bg-white/10 backdrop-blur-sm text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto text-gray-800 dark:text-gray-300">
                       {apiError.details}
                     </pre>
                   </details>
@@ -198,9 +201,9 @@ export function ChatMessageList({
               interleavedNodes.push(
                 <div
                   key={`md-${m.id}-${textCursor}`}
-                  className="rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 p-5"
+                  className="rounded-2xl bg-white/70 dark:bg-black/75 backdrop-blur-xl shadow-lg ring-1 ring-gray-200/50 dark:ring-transparent p-5"
                 >
-                  <div className="prose-sm md:prose-base dark:prose-invert text-gray-700 dark:text-gray-300 max-w-none break-words overflow-wrap-anywhere">
+                  <div className="prose-sm md:prose-base dark:prose-invert text-gray-800 dark:text-gray-300 max-w-none break-words overflow-wrap-anywhere">
                     <ChatMarkdown markdown={textChunk} />
                   </div>
                 </div>,
@@ -226,9 +229,9 @@ export function ChatMessageList({
             interleavedNodes.push(
               <div
                 key={`md-${m.id}-tail`}
-                className="rounded-2xl border border-outline-variant/15 glass-card p-5 shadow-sm"
+                className="rounded-2xl bg-white/70 dark:bg-black/75 backdrop-blur-xl shadow-lg ring-1 ring-gray-200/50 dark:ring-transparent p-5"
               >
-                <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none break-words overflow-wrap-anywhere">
+                <div className="prose-sm md:prose-base dark:prose-invert text-gray-800 dark:text-gray-300 max-w-none break-words overflow-wrap-anywhere">
                   <ChatMarkdown markdown={tail} />
                 </div>
               </div>,

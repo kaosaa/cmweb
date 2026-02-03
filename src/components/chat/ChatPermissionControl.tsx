@@ -71,8 +71,8 @@ export function ChatPermissionControl({
           <ChevronDown className="w-3 h-3 opacity-50 ml-0.5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-4 rounded-xl bg-black border-zinc-800">
-        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal px-0 pb-3">
+      <DropdownMenuContent align="end" className="w-80 p-4 rounded-xl bg-gradient-to-br from-gray-50/98 via-white/95 to-gray-100/98 backdrop-blur-xl shadow-2xl border-gray-300/60 dark:bg-none dark:bg-black dark:border-zinc-800 dark:backdrop-blur-0 dark:shadow-none">
+        <DropdownMenuLabel className="text-xs font-normal px-0 pb-3 text-gray-600 dark:text-muted-foreground">
           安全设置 (当前会话)
         </DropdownMenuLabel>
         <RadioGroup value={value} onValueChange={onChange} className="w-full">

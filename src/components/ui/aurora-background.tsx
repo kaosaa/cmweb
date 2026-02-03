@@ -16,13 +16,63 @@ export const AuroraBackground = ({
   return (
     <div
       className={cn(
-        "transition-bg relative flex h-full w-full flex-col bg-black",
+        "transition-bg relative flex h-full w-full flex-col",
+        "bg-gradient-to-br from-slate-50 via-white to-blue-50/30",
+        "dark:bg-none dark:bg-black",
         className,
       )}
       {...props}
     >
+      {/* 浅色模式极光 - 只在浅色模式显示 */}
+      <div className="absolute inset-0 overflow-hidden dark:hidden pointer-events-none">
+        <div
+          className="absolute -inset-[10px] opacity-40 blur-[80px] will-change-transform"
+          style={{
+            background: `
+              repeating-linear-gradient(100deg,
+                rgba(255, 182, 193, 0.3) 0%,
+                rgba(230, 190, 255, 0.35) 15%,
+                rgba(173, 216, 230, 0.3) 30%,
+                rgba(152, 251, 152, 0.25) 45%,
+                rgba(255, 218, 185, 0.3) 60%,
+                rgba(255, 182, 193, 0.3) 100%
+              )
+            `,
+            backgroundSize: "200% 100%",
+            backgroundPosition: "50% 50%",
+            animation: "aurora 60s linear infinite",
+          }}
+        />
+        <div
+          className="absolute -inset-[10px] opacity-30 blur-[100px] will-change-transform"
+          style={{
+            background: `
+              radial-gradient(ellipse at 20% 30%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, rgba(253, 164, 175, 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 40% 70%, rgba(134, 239, 172, 0.12) 0%, transparent 50%),
+              radial-gradient(ellipse at 90% 80%, rgba(252, 211, 77, 0.12) 0%, transparent 50%)
+            `,
+            animation: "aurora 90s ease-in-out infinite alternate",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background: `
+              repeating-linear-gradient(90deg,
+                rgba(255, 182, 193, 0.05) 0px,
+                transparent 40px,
+                transparent 80px,
+                rgba(230, 190, 255, 0.05) 120px
+              )
+            `,
+          }}
+        />
+      </div>
+
+      {/* 深色模式极光 - 只在深色模式显示 - 100%原始仓库代码 */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="hidden dark:block absolute inset-0 overflow-hidden"
         style={
           {
             "--aurora":

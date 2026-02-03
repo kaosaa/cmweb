@@ -92,7 +92,7 @@
   --font-weight-bold: 650;
 
   /* MD3 Light Theme - Based on a Deep Indigo/Violet Key Color */
-  --md-sys-color-primary: oklch(0.40 0.22 280); 
+  --md-sys-color-primary: oklch(0.40 0.22 280);
   --md-sys-color-on-primary: oklch(1 0 0);
   --md-sys-color-primary-container: oklch(0.92 0.08 280);
   --md-sys-color-on-primary-container: oklch(0.25 0.15 280);
@@ -112,17 +112,17 @@
   --md-sys-color-error-container: oklch(0.95 0.06 25);
   --md-sys-color-on-error-container: oklch(0.25 0.15 25);
 
-  --md-sys-color-background: oklch(0.99 0.005 280);
-  --md-sys-color-on-background: oklch(0.15 0.02 280);
+  --md-sys-color-background: oklch(0.98 0.005 280);
+  --md-sys-color-on-background: oklch(0.12 0.02 280);
 
-  --md-sys-color-surface: oklch(0.99 0.005 280);
-  --md-sys-color-on-surface: oklch(0.15 0.02 280);
-  
+  --md-sys-color-surface: oklch(0.98 0.005 280);
+  --md-sys-color-on-surface: oklch(0.12 0.02 280);
+
   --md-sys-color-surface-variant: oklch(0.92 0.02 280);
-  --md-sys-color-on-surface-variant: oklch(0.35 0.02 280);
+  --md-sys-color-on-surface-variant: oklch(0.30 0.02 280);
 
-  --md-sys-color-outline: oklch(0.60 0.02 280);
-  --md-sys-color-outline-variant: oklch(0.85 0.02 280);
+  --md-sys-color-outline: oklch(0.55 0.02 280);
+  --md-sys-color-outline-variant: oklch(0.82 0.02 280);
 
   /* Surface Container Tones */
   --md-sys-color-surface-dim: oklch(0.90 0.01 280);
@@ -295,16 +295,17 @@ html, body {
 @layer components {
   .glass-card {
     @apply relative overflow-hidden transition-all duration-300;
-    /* 深色玻璃质感 - 类似 Todo 面板 */
-    background: rgba(0, 0, 0, 0.75);
+    /* 浅色模式：白色磨砂玻璃 */
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow:
-      0 8px 32px 0 rgba(0, 0, 0, 0.4),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      0 8px 32px 0 rgba(0, 0, 0, 0.08),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.8);
   }
 
   .dark .glass-card {
+    /* 深色模式：深色玻璃质感 */
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -315,16 +316,17 @@ html, body {
 
   .glass-card-inverse {
     @apply relative overflow-hidden transition-all duration-300;
-    /* 用户消息框 - 稍微亮一点的深色玻璃 */
-    background: rgba(39, 39, 42, 0.8);
+    /* 浅色模式：用户消息框 - 稍微深一点的白色玻璃 */
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(24px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow:
-      0 8px 32px 0 rgba(0, 0, 0, 0.3),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      0 8px 32px 0 rgba(0, 0, 0, 0.1),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.9);
   }
 
   .dark .glass-card-inverse {
+    /* 深色模式：稍微亮一点的深色玻璃 */
     background: rgba(39, 39, 42, 0.8);
     backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.1);
