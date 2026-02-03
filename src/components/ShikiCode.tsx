@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, memo } from 'react'
 import { bundledLanguages, codeToHtml, type BundledLanguage } from 'shiki'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
@@ -81,7 +81,7 @@ function computeInputKey(code: string, lang: string, theme: string): string {
   return `${theme}:${lang}:${code.length}:${(hash >>> 0).toString(16)}`
 }
 
-export function ShikiCode({
+export const ShikiCode = memo(function ShikiCode({
   code,
   filePath,
   language,
@@ -147,11 +147,11 @@ export function ShikiCode({
   return (
     <div
       className={cn(
-        'h-full min-h-0 overflow-auto text-xs [&_.shiki]:!bg-transparent [&_.shiki]:min-w-fit [&_.shiki]:p-4',
+        'h-full min-h-0 overflow-auto text-[17px] leading-relaxed [&_.shiki]:!bg-transparent [&_.shiki]:min-w-fit [&_.shiki]:px-6 [&_.shiki]:py-5 [&_.shiki]:font-mono',
         className,
       )}
       // Shiki returns safe, static HTML.
       dangerouslySetInnerHTML={{ __html: state.html }}
     />
   )
-}
+})

@@ -122,12 +122,12 @@ export function ChatMessagesPanel({
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-8 scroll-smooth"
+      className="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-8 scroll-smooth relative z-0"
     >
       <div className="max-w-4xl mx-auto space-y-8">
         {todos && todoStats ? (
           <details
-            className="lg:hidden rounded-3xl border border-outline-variant/25 bg-surface-container-high/40 px-4 py-3 shadow-sm"
+            className="lg:hidden rounded-3xl border border-outline-variant/15 bg-surface-container-high/40 px-4 py-3 shadow-sm"
             open={todoDetailsOpen}
             onToggle={(e) => {
               const open = (e.currentTarget as HTMLDetailsElement | null)?.open ?? false
@@ -143,7 +143,7 @@ export function ChatMessagesPanel({
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-                  <tr className="border-b border-outline-variant/20">
+                  <tr className="border-b border-outline-variant/12">
                     <th className="py-2 pr-3 text-left font-semibold">状态</th>
                     <th className="py-2 pr-3 text-left font-semibold">内容</th>
                   </tr>
@@ -169,7 +169,7 @@ export function ChatMessagesPanel({
 
         {compactNotice ? (
           <div
-            className="rounded-3xl border border-outline-variant/25 bg-surface-container-high/40 px-4 py-3 text-sm text-on-surface-variant shadow-sm flex items-start justify-between gap-3 animate-fade-in-up"
+            className="rounded-3xl border border-outline-variant/15 bg-surface-container-high/40 px-4 py-3 text-sm text-on-surface-variant shadow-sm flex items-start justify-between gap-3 animate-fade-in-up"
             title={`trigger=${compactNotice.trigger} preTokens=${compactNotice.preTokens}`}
           >
             <div className="whitespace-pre-wrap break-words leading-relaxed">
@@ -241,7 +241,7 @@ export function ChatMessagesPanel({
                       ? 'bg-error/10 text-error border-error/20'
                       : contextInfo.percentLeft <= 10
                         ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20'
-                        : 'bg-surface-container-highest/40 text-muted-foreground border-outline-variant/30')
+                        : 'bg-surface-container-highest/40 text-muted-foreground border-outline-variant/15')
                   }
                   title={`context ${contextInfo.contextSize} / ${contextInfo.budget} tokens`}
                 >

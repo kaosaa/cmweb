@@ -1,6 +1,7 @@
-import { CheckCircle2, Circle, ListTodo, Loader2, ChevronsRight, GripVertical } from 'lucide-react'
+import { CheckCircle2, Circle, ListTodo, Loader2, ChevronsRight, GripVertical, FolderOpen, ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { GlowingEffect } from '@/components/ui/glowing-effect'
 import type { TodoItem } from '@/utils/todos'
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 
@@ -8,6 +9,12 @@ export type TodoFloatingPanelProps = {
   todos: TodoItem[] | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  activeSession?: {
+    title: string
+    cwd?: string
+  } | null
+  activeModel?: string
+  thinking?: boolean
 }
 
 type FloatPos = { x: number; y: number }
@@ -52,7 +59,7 @@ function getDefaultPosForViewport(): FloatPos {
   return { x, y: DEFAULT_POS.y }
 }
 
-export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPanelProps) {
+export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, activeModel, thinking }: TodoFloatingPanelProps) {
   if (!todos || todos.length < 1) return null
 
   const total = todos.length
@@ -62,6 +69,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
   const containerRef = useRef<HTMLDivElement | null>(null)
   const pillRef = useRef<HTMLButtonElement | null>(null)
   const suppressNextClickRef = useRef(false)
+  const [sessionInfoCollapsed, setSessionInfoCollapsed] = useState(false)
 
   const [pos, setPos] = useState<FloatPos>(() => {
     if (typeof window === 'undefined') return DEFAULT_POS
@@ -183,7 +191,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
       className={cn(
         'flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold shadow-sm transition-all',
         'bg-surface-container-high/80 backdrop-blur-md hover:bg-surface-container-highest/80',
-        'border-outline-variant/30 text-on-surface-variant',
+        'border-outline-variant/15 text-on-surface-variant',
       )}
       title="打开任务列表"
     >
@@ -215,32 +223,46 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
       onPointerUp={onDragEnd}
       onPointerCancel={onDragEnd}
     >
-      <div className="rounded-2xl border border-outline-variant/25 bg-surface-container-high/85 backdrop-blur-md shadow-lg">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant/20">
+      <div className="relative rounded-2xl border-0 bg-black shadow-2xl">
+        <GlowingEffect
+          disabled={false}
+          proximity={64}
+          spread={80}
+          blur={0}
+          borderWidth={3}
+          glow={true}
+          inactiveZone={0.01}
+        />
+        <div className="relative z-10 rounded-2xl overflow-hidden">
+          <div
+            className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/50 cursor-grab active:cursor-grabbing select-none backdrop-blur-sm"
+            onPointerDown={(e) => {
+              // 如果点击的是关闭按钮，不触发拖拽
+              if ((e.target as HTMLElement).closest('button[title="最小化"]')) return
+              startDrag(e, containerRef.current)
+            }}
+            title="拖拽移动面板"
+          >
           <div className="flex items-center gap-2 min-w-0">
-            <button
-              type="button"
+            <div
               className={cn(
                 'shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-lg',
-                'text-muted-foreground/70 hover:bg-surface-container-highest/40',
-                'cursor-grab active:cursor-grabbing',
+                'text-zinc-500',
               )}
-              onPointerDown={(e) => startDrag(e, containerRef.current)}
-              title="拖动移动"
             >
               <GripVertical className="w-4 h-4" />
-            </button>
+            </div>
             <ListTodo className="w-4 h-4 text-primary shrink-0" />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-on-surface truncate">Todos</span>
-                <span className="text-xs text-muted-foreground shrink-0">
+                <span className="text-sm font-semibold text-white truncate">Todos</span>
+                <span className="text-xs text-zinc-400 shrink-0">
                   {completed}/{total}
                 </span>
-                <span className="text-[10px] text-muted-foreground/80 shrink-0">{progressPct}%</span>
+                <span className="text-[10px] text-zinc-500 shrink-0">{progressPct}%</span>
               </div>
-              <div className="h-1.5 mt-1 rounded-full bg-outline-variant/20 overflow-hidden">
-                <div className="h-full bg-primary/70" style={{ width: `${progressPct}%` }} />
+              <div className="h-1.5 mt-1 rounded-full bg-zinc-800/50 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary/70 to-primary transition-all duration-300" style={{ width: `${progressPct}%` }} />
               </div>
             </div>
           </div>
@@ -249,7 +271,7 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
             type="button"
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-surface-container-highest"
+            className="h-8 w-8 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/50"
             onClick={() => onOpenChange(false)}
             title="最小化"
           >
@@ -257,8 +279,8 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
           </Button>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto px-2 py-2">
-          <div className="space-y-1">
+        <div className="max-h-[60vh] overflow-y-auto px-3 py-3">
+          <div className="space-y-2">
             {todos.map((t) => {
               const StatusIcon =
                 t.status === 'completed' ? CheckCircle2 : t.status === 'in_progress' ? Loader2 : Circle
@@ -267,32 +289,32 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
                 <div
                   key={t.id}
                   className={cn(
-                    'rounded-xl border px-3 py-2 text-xs transition-colors',
-                    'border-outline-variant/20 bg-surface/50 hover:bg-surface-container-highest/40',
+                    'rounded-xl border px-3 py-2.5 text-xs transition-all duration-200',
+                    'border-zinc-800/50 bg-zinc-900/50 backdrop-blur-sm hover:bg-zinc-800/50 hover:border-zinc-700/50',
                   )}
                 >
-                <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2.5">
                     <StatusIcon
                       className={cn(
                         'w-4 h-4 mt-0.5 shrink-0',
                         t.status === 'completed'
-                          ? 'text-green-600 dark:text-green-400'
+                          ? 'text-green-500'
                           : t.status === 'in_progress'
-                            ? 'text-tertiary animate-spin'
-                            : 'text-muted-foreground',
+                            ? 'text-primary animate-spin'
+                            : 'text-zinc-600',
                       )}
                     />
                     <div className="min-w-0 flex-1">
                       <div
                         className={cn(
-                          'text-on-surface break-words leading-relaxed',
-                          t.status === 'completed' && 'line-through text-muted-foreground',
+                          'text-white break-words leading-relaxed',
+                          t.status === 'completed' && 'line-through text-zinc-500',
                         )}
                       >
                         {t.content || '(空)'}
                       </div>
                       {t.activeForm ? (
-                        <div className="mt-1 text-[11px] text-muted-foreground truncate" title={t.activeForm}>
+                        <div className="mt-1.5 text-[11px] text-zinc-500 truncate" title={t.activeForm}>
                           {t.activeForm}
                         </div>
                       ) : null}
@@ -301,10 +323,10 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
                       className={cn(
                         'shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border',
                         t.status === 'completed'
-                          ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20'
+                          ? 'bg-green-500/10 text-green-400 border-green-500/30'
                           : t.status === 'in_progress'
-                            ? 'bg-tertiary/10 text-tertiary border-tertiary/20'
-                            : 'bg-surface-container-highest/40 text-muted-foreground border-outline-variant/30',
+                            ? 'bg-primary/10 text-primary border-primary/30'
+                            : 'bg-zinc-800/50 text-zinc-500 border-zinc-700/50',
                       )}
                       title={`status=${t.status}`}
                     >
@@ -314,7 +336,66 @@ export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPan
                 </div>
               )
             })}
+
+            {/* 当前会话信息 */}
+            {activeSession && (
+              <div
+                className={cn(
+                  'rounded-xl border px-3 py-2.5 text-xs transition-all duration-200',
+                  'border-zinc-800/50 bg-zinc-900/50 backdrop-blur-sm hover:bg-zinc-800/50 hover:border-zinc-700/50',
+                )}
+              >
+                <div className="flex items-start gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSessionInfoCollapsed(!sessionInfoCollapsed)}
+                    className="shrink-0 mt-0.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    {sessionInfoCollapsed ? (
+                      <ChevronRight className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-white break-words leading-relaxed font-semibold">
+                      当前会话
+                    </div>
+                    {!sessionInfoCollapsed && (
+                      <div className="mt-2 space-y-1.5">
+                        <div className="text-zinc-300 truncate" title={activeSession.title}>
+                          {activeSession.title}
+                        </div>
+                        <div className="flex items-center gap-2.5 text-[10px] text-zinc-400">
+                          {activeModel && (
+                            <div className="flex items-center gap-1">
+                              <span className={cn('w-1 h-1 rounded-full', thinking ? 'bg-tertiary' : 'bg-primary')} />
+                              <span className="truncate">{activeModel}</span>
+                            </div>
+                          )}
+                          {activeSession.cwd && (
+                            <div className="flex items-center gap-1 truncate" title={activeSession.cwd}>
+                              <FolderOpen className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{activeSession.cwd}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    className={cn(
+                      'shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border',
+                      'bg-blue-500/10 text-blue-400 border-blue-500/30',
+                    )}
+                  >
+                    会话
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+        </div>
         </div>
       </div>
 

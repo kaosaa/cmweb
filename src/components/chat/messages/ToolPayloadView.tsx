@@ -74,7 +74,7 @@ export function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
 
     if (maxDepth <= 0) {
       return (
-        <details className="rounded-lg border border-outline-variant/30 bg-surface p-2">
+        <details className="rounded-lg border border-outline-variant/15 bg-surface p-2">
           <summary className="cursor-pointer select-none text-[11px] font-medium text-on-surface-variant">
             {summary ?? '对象'}（展开查看）
           </summary>
@@ -88,7 +88,7 @@ export function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
     if (Array.isArray(value)) {
       const entries: Array<[string, unknown]> = value.map((v, idx) => [String(idx), v])
       return (
-        <details className="rounded-lg border border-outline-variant/30 bg-surface p-2">
+        <details className="rounded-lg border border-outline-variant/15 bg-surface p-2">
           <summary className="cursor-pointer select-none text-[11px] font-medium text-on-surface-variant">
             {summary ?? '数组'}（展开查看）
           </summary>
@@ -103,7 +103,7 @@ export function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
       const entries = Object.entries(value)
       if (!entries.length) return <span className="text-muted-foreground">（空对象）</span>
       return (
-        <details className="rounded-lg border border-outline-variant/30 bg-surface p-2" open>
+        <details className="rounded-lg border border-outline-variant/15 bg-surface p-2" open>
           <summary className={cn('cursor-pointer select-none text-[11px] font-medium text-on-surface-variant')}>
             {summary ?? '对象'}
           </summary>

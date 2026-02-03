@@ -1,11 +1,13 @@
 import { useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { Check, ChevronDown, Cpu, ImagePlus, MessageSquarePlus, Send, X } from 'lucide-react'
+import { Check, ChevronDown, Cpu, ImagePlus, MessageSquarePlus, Send, X, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { PlaceholdersAndVanishInput, type PlaceholdersAndVanishInputRef } from '@/components/ui/placeholders-and-vanish-input'
+import { BackgroundGradient } from '@/components/ui/background-gradient'
+import { ChatPermissionControl } from './ChatPermissionControl'
 import type { ChatComposerProps } from './ChatComposer.types'
 
 export function ChatComposer({
@@ -27,30 +29,62 @@ export function ChatComposer({
   canSend,
   onSend,
   onCancel,
+  permissionMode,
+  onPermissionModeChange,
+  onCompactSession,
 }: ChatComposerProps) {
   const imageInputRef = useRef<HTMLInputElement | null>(null)
+  const vanishInputRef = useRef<PlaceholdersAndVanishInputRef>(null)
 
   const pickImages = () => {
     if (busy || !activeSessionId) return
     imageInputRef.current?.click()
   }
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (busy || !activeSessionId) return
+    const clipboard = e.clipboardData
+    if (!clipboard) return
+
+    const items = Array.from(clipboard.items ?? [])
+    if (!items.length) return
+
+    const files = items
+      .filter((it) => it.kind === 'file')
+      .map((it) => it.getAsFile())
+      .filter((f): f is File => Boolean(f))
+      .filter((f) => {
+        if (f.type.startsWith('image/')) return true
+        return /\.(png|jpe?g|gif|webp|bmp|tiff?|avif|heic|heif)$/i.test(f.name || '')
+      })
+
+    if (!files.length) return
+    e.preventDefault()
+
+    const dt = new DataTransfer()
+    for (const f of files) dt.items.add(f)
+    void onPickImages(dt.files)
+  }
+
   return (
-    <div
+    <BackgroundGradient
+      containerClassName="w-full max-w-3xl mx-auto"
+      animate={false}
       className={cn(
-        'mx-auto w-full max-w-3xl relative transition-all duration-300',
-        'bg-surface-container rounded-[28px] shadow-lg border border-outline-variant/30',
-        'focus-within:ring-2 focus-within:ring-primary/20 focus-within:shadow-xl focus-within:bg-surface-container-high',
+        'relative transition-opacity duration-300 w-full',
+        'bg-surface-container backdrop-blur-2xl rounded-[26px] shadow-2xl',
+        'focus-within:bg-surface-container',
         busy && 'opacity-80 grayscale-[0.2]',
       )}
     >
+      <div className="w-full">
       {draftImages.length ? (
         <div className="px-4 pt-3 pb-1">
           <div className="flex gap-2 overflow-x-auto pb-1">
             {draftImages.map((d) => (
               <div
                 key={d.clientId}
-                className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container-highest shadow-sm"
+                className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-outline-variant/12 bg-surface-container-highest shadow-sm"
                 title={d.status === 'error' && d.error ? d.error : d.file.name}
               >
                 <img src={d.uploaded?.url ?? d.localUrl} alt={d.file.name} className="h-full w-full object-cover" />
@@ -80,43 +114,18 @@ export function ChatComposer({
         </div>
       ) : null}
 
-      <div className="px-4 pt-3 pb-2">
-        <Textarea
+      <div className="px-4 pt-3 pb-2" onPaste={handlePaste}>
+        <PlaceholdersAndVanishInput
+          ref={vanishInputRef}
+          placeholder={hasActiveSession ? '给 CM 发消息…' : '请先选择一个对话…'}
           value={composerText}
           onChange={(e) => onComposerTextChange(e.target.value)}
-          placeholder={hasActiveSession ? '给 CM 发消息…' : '请先选择一个对话…'}
-          className="bg-transparent border-none shadow-none resize-none min-h-[56px] max-h-[240px] text-base px-1 py-1 focus-visible:ring-0 placeholder:text-muted-foreground/70"
-          disabled={!activeSessionId || busy}
-          onPaste={(e) => {
-            if (busy || !activeSessionId) return
-            const clipboard = e.clipboardData
-            if (!clipboard) return
-
-            const items = Array.from(clipboard.items ?? [])
-            if (!items.length) return
-
-            const files = items
-              .filter((it) => it.kind === 'file')
-              .map((it) => it.getAsFile())
-              .filter((f): f is File => Boolean(f))
-              .filter((f) => {
-                if (f.type.startsWith('image/')) return true
-                return /\.(png|jpe?g|gif|webp|bmp|tiff?|avif|heic|heif)$/i.test(f.name || '')
-              })
-
-            if (!files.length) return
+          onSubmit={(e) => {
             e.preventDefault()
-
-            const dt = new DataTransfer()
-            for (const f of files) dt.items.add(f)
-            void onPickImages(dt.files)
+            void onSend()
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              void onSend()
-            }
-          }}
+          disabled={!activeSessionId || busy}
+          className="bg-transparent"
         />
       </div>
 
@@ -140,7 +149,7 @@ export function ChatComposer({
                 className={cn(
                   'group flex items-center gap-2 h-9 pl-3 pr-2.5 rounded-full text-xs font-medium transition-all outline-none select-none',
                   'bg-surface-container-highest/30 hover:bg-surface-container-highest/60 text-on-surface-variant hover:text-on-surface',
-                  'border border-outline-variant/30 hover:border-outline-variant/50 focus-visible:ring-2 focus-visible:ring-primary/30',
+                  'border border-outline-variant/15 hover:border-outline-variant/50 focus-visible:ring-2 focus-visible:ring-primary/30',
                   'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
               >
@@ -155,7 +164,7 @@ export function ChatComposer({
                 align="start"
                 sideOffset={8}
                 className={cn(
-                  'z-50 min-w-[220px] max-w-[300px] overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container-high/95 p-1 text-on-surface shadow-lg backdrop-blur-md',
+                  'z-50 min-w-[220px] max-w-[300px] overflow-hidden rounded-xl border border-outline-variant/12 bg-surface-container-high/95 p-1 text-on-surface shadow-lg backdrop-blur-md',
                   'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
                 )}
               >
@@ -214,11 +223,28 @@ export function ChatComposer({
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full text-muted-foreground hover:bg-surface-container-highest"
+            onClick={onCompactSession}
+            disabled={!activeSessionId || busy}
+            title="压缩历史（保留最近几轮对话）"
+          >
+            <Archive className="w-4 h-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-surface-container-highest"
             onClick={onOpenNewChat}
             title="新对话"
           >
             <MessageSquarePlus className="w-4 h-4" />
           </Button>
+
+          <ChatPermissionControl
+            value={permissionMode}
+            onChange={onPermissionModeChange}
+            disabled={!activeSessionId || busy}
+          />
         </div>
 
         <div className="flex items-center gap-2">
@@ -236,7 +262,12 @@ export function ChatComposer({
           <Button
             type="button"
             disabled={!canSend}
-            onClick={() => void onSend()}
+            onClick={() => {
+              // 先触发消散动画
+              vanishInputRef.current?.triggerVanish()
+              // 然后发送消息
+              void onSend()
+            }}
             className={cn(
               'h-10 w-10 rounded-full p-0 shadow-md transition-all active:scale-95',
               busy
@@ -248,7 +279,8 @@ export function ChatComposer({
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </BackgroundGradient>
   )
 }
 

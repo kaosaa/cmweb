@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MessageSquarePlus, FolderOpen, Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/Modal'
@@ -7,6 +6,7 @@ import { DirectoryPicker } from '@/components/DirectoryPicker'
 import { ToolAuthModal } from '@/components/ToolAuthModal'
 import { FontSettingsControl } from '@/components/FontSettingsControl'
 import { ImageViewer } from '@/components/ImageViewer'
+import { AuroraBackground } from '@/components/ui/aurora-background'
 import { DEFAULT_FONT_SETTINGS } from '@/hooks/use-font-settings'
 import { extractLatestTodoWriteTodos } from '@/utils/todos'
 import type { ChatAppViewProps } from './ChatAppView.types'
@@ -14,7 +14,8 @@ import { ChatSidebar } from './ChatSidebar'
 import { ChatComposer } from './ChatComposer'
 import { TodoFloatingPanel } from './TodoFloatingPanel'
 import { ChatMessagesPanel } from './messages/ChatMessagesPanel'
-import { ChatPermissionControl } from './ChatPermissionControl'
+import { FolderOpen, Type, Eye, EyeOff } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
 
 export function ChatAppView({
   models,
@@ -64,6 +65,8 @@ export function ChatAppView({
   const thinking = Boolean(activeSession?.thinking)
   const [previewImage, setPreviewImage] = useState<{ src: string; alt?: string } | null>(null)
   const [todoPanelOpen, setTodoPanelOpen] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
+  const [immersiveMode, setImmersiveMode] = useState(false)
 
   const todos = useMemo(() => extractLatestTodoWriteTodos(activeSession?.messages), [activeSession?.messages])
 
@@ -72,109 +75,133 @@ export function ChatAppView({
   }, [activeSession?.id])
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 selection:text-primary">
+    <div className="h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 selection:text-primary">
+      {/* 侧边栏 - 固定定位，完全脱离文档流 */}
       <ChatSidebar
         sessions={sessions}
         activeSessionId={activeSessionId}
+        activeSession={activeSession}
+        activeModel={activeModel}
+        busy={busy}
         onSelectSession={(id) => setActiveSessionId(id)}
         onRequestDelete={(id, title) => setDeleteConfirm({ id, title })}
         onOpenNewChat={openNewChat}
         onOpenSettings={openSettings}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      <main className="flex-1 flex flex-col relative bg-background min-w-0">
-        <TodoFloatingPanel todos={todos} open={todoPanelOpen} onOpenChange={setTodoPanelOpen} />
+      {/* 主内容区域 - 固定宽度，添加左侧 padding 避免被侧边栏遮挡 */}
+      <AuroraBackground className="h-full w-full pl-[80px] flex flex-col" showRadialGradient={false}>
+        <TodoFloatingPanel
+          todos={todos}
+          open={todoPanelOpen}
+          onOpenChange={setTodoPanelOpen}
+          activeSession={activeSession}
+          activeModel={activeModel}
+          thinking={thinking}
+        />
 
-        <header className="absolute top-0 inset-x-0 z-10 h-20 flex items-center justify-between px-6 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none">
-          <div className="pointer-events-auto flex items-center gap-2 max-w-[60%]">
-            <div className="md:hidden mr-2">
-              <Button variant="ghost" size="icon" onClick={() => {}}>
-                <MessageSquarePlus className="w-5 h-5" />
-              </Button>
-            </div>
-                        <div className="flex flex-col">
-                          <h2 className="text-base font-semibold text-on-surface truncate">{activeSession?.title ?? 'CM 助手'}</h2>
-                          {activeSession && (
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <div className="flex items-center gap-1.5">
-                                <span className={cn('w-1.5 h-1.5 rounded-full', thinking ? 'bg-tertiary' : 'bg-primary')} />
-                                {activeModel}
-                              </div>
-                              {activeSession.cwd && (
-                                <div className="flex items-center gap-1 truncate" title={activeSession.cwd}>
-                                  <FolderOpen className="w-3 h-3 shrink-0" />
-                                  <span className="truncate max-w-[200px]">{activeSession.cwd}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-            
-                      <div className="pointer-events-auto flex items-center gap-2">
-                        {activeSession ? (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 rounded-full text-xs"
-                            onClick={() => void compactActiveSession()}
-                            disabled={!activeSessionId || busy}
-                            title="压缩历史（保留最近几轮对话）"
-                          >
-                            压缩
-                          </Button>
-                        ) : null}
-                        {activeSession && (
-                          <ChatPermissionControl
-                            value={activeSession.permissionMode ?? 'dangerous_only'}
-                            onChange={(mode) => void updateActiveSession({ permissionMode: mode })}
-                            disabled={!activeSessionId || busy}
-                          />
-                        )}
-                      </div>
-                    </header>
-            
-                            <ChatMessagesPanel
-                              activeSession={activeSession}
-                              busy={busy}
-                              streamingAssistantId={streamingAssistantId}
-                              thinkingOpenById={thinkingOpenById}
-                              setThinkingOpenById={setThinkingOpenById}
-                              error={error}
-                              onClearError={() => setError(null)}
-                              onPreviewImage={(src, alt) => setPreviewImage({ src, alt })}
-                              compactNotice={compactNotice}
-                              onClearCompactNotice={clearCompactNotice}
-                              onCompactSession={() => void compactActiveSession()}
-                            />            
-                    <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-20">
-                      <ChatComposer
-                        activeSessionId={activeSessionId}
-                        hasActiveSession={Boolean(activeSession)}
-                        busy={busy}
-                        composerText={composerText}
-                        onComposerTextChange={(text) => setComposerText(text)}
-                        draftImages={draftImages}
-                        onRemoveDraftImage={removeDraftImage}
-                        onPickImages={onPickImages}
-                        models={models}
-                        defaultModel={defaultModel}
-                        activeModel={activeModel}
-                        onModelChange={(val) => void updateActiveSession({ model: val })}
-                        thinking={thinking}
-                        onThinkingChange={(v) => void updateActiveSession({ thinking: v })}
-                        onOpenNewChat={openNewChat}
-                        canSend={canSend}
-                        onSend={send}
-                        onCancel={cancel}
-                      />
-            
-                      <div className="text-center mt-3 text-[10px] text-muted-foreground/60 font-medium tracking-wide">
-                        由 Claude Code CLI & CM 驱动
-                      </div>
-        </div>
-      </main>
+        <ChatMessagesPanel
+          activeSession={activeSession}
+          busy={busy}
+          streamingAssistantId={streamingAssistantId}
+          thinkingOpenById={thinkingOpenById}
+          setThinkingOpenById={setThinkingOpenById}
+          error={error}
+          onClearError={() => setError(null)}
+          onPreviewImage={(src, alt) => setPreviewImage({ src, alt })}
+          compactNotice={compactNotice}
+          onClearCompactNotice={clearCompactNotice}
+          onCompactSession={() => void compactActiveSession()}
+        />
+
+        {/* 沉浸式模式切换按钮 - 固定在右下角 */}
+        <motion.button
+          onClick={() => setImmersiveMode(!immersiveMode)}
+          className={cn(
+            'fixed bottom-6 right-6 z-30',
+            'h-12 w-12 rounded-full',
+            'bg-black/40 backdrop-blur-xl',
+            'border border-white/10',
+            'shadow-2xl shadow-black/30',
+            'flex items-center justify-center',
+            'text-white/70 hover:text-white/90',
+            'transition-all duration-300',
+            'hover:scale-110 active:scale-95',
+            'group'
+          )}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title={immersiveMode ? '显示输入框' : '沉浸式阅读'}
+        >
+          <AnimatePresence mode="wait">
+            {immersiveMode ? (
+              <motion.div
+                key="eye"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0, rotate: 180 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Eye className="h-5 w-5" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="eye-off"
+                initial={{ scale: 0, rotate: 180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0, rotate: -180 }}
+                transition={{ duration: 0.2 }}
+              >
+                <EyeOff className="h-5 w-5" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+
+        {/* 输入框和底部文字 - 可隐藏 */}
+        <AnimatePresence>
+          {!immersiveMode && (
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-0 left-0 right-4 p-4 md:p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20"
+            >
+              <div className="pointer-events-auto">
+                <ChatComposer
+                  activeSessionId={activeSessionId}
+                  hasActiveSession={Boolean(activeSession)}
+                  busy={busy}
+                  composerText={composerText}
+                  onComposerTextChange={(text) => setComposerText(text)}
+                  draftImages={draftImages}
+                  onRemoveDraftImage={removeDraftImage}
+                  onPickImages={onPickImages}
+                  models={models}
+                  defaultModel={defaultModel}
+                  activeModel={activeModel}
+                  onModelChange={(val) => void updateActiveSession({ model: val })}
+                  thinking={thinking}
+                  onThinkingChange={(v) => void updateActiveSession({ thinking: v })}
+                  onOpenNewChat={openNewChat}
+                  canSend={canSend}
+                  onSend={send}
+                  onCancel={cancel}
+                  permissionMode={activeSession?.permissionMode ?? 'dangerous_only'}
+                  onPermissionModeChange={(mode) => void updateActiveSession({ permissionMode: mode })}
+                  onCompactSession={() => void compactActiveSession()}
+                />
+
+                <div className="text-center mt-3 text-[10px] text-muted-foreground/60 font-medium tracking-wide">
+                  由 Claude Code CLI & CM 驱动
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </AuroraBackground>
 
       <Modal
         open={newChatOpen}
@@ -182,15 +209,15 @@ export function ChatAppView({
         onClose={() => setNewChatOpen(false)}
         className="max-w-xl p-0 overflow-hidden rounded-[28px]"
       >
-        <div className="bg-surface-container p-6 space-y-6">
+        <div className="p-6 space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-on-surface ml-1 flex items-center gap-2">
-                <FolderOpen className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-white ml-1 flex items-center gap-2">
+                <FolderOpen className="w-4 h-4 text-zinc-400" />
                 工作目录（CWD）
               </label>
               <DirectoryPicker value={newChatCwd} onChange={onChangeNewChatCwd} />
-              <p className="text-xs text-muted-foreground ml-1">AI 将可以读取该目录中的文件。</p>
+              <p className="text-xs text-zinc-400 ml-1">AI 将可以读取该目录中的文件。</p>
             </div>
           </div>
 
@@ -216,9 +243,9 @@ export function ChatAppView({
         onClose={() => setDeleteConfirm(null)}
         className="max-w-sm p-0 overflow-hidden rounded-[28px]"
       >
-        <div className="bg-surface-container p-6">
-          <div className="text-sm text-on-surface-variant leading-relaxed mb-6">
-            确定要删除 <span className="font-semibold text-on-surface">"{deleteConfirm?.title ?? ''}"</span> 吗？此操作无法撤销。
+        <div className="p-6">
+          <div className="text-sm text-zinc-300 leading-relaxed mb-6">
+            确定要删除 <span className="font-semibold text-white">"{deleteConfirm?.title ?? ''}"</span> 吗？此操作无法撤销。
           </div>
           <div className="flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={() => setDeleteConfirm(null)} className="rounded-full">
@@ -239,7 +266,7 @@ export function ChatAppView({
       <Modal open={settingsOpen} title="设置" onClose={cancelSettings} className="max-w-lg p-0 overflow-hidden rounded-[28px]">
         <div className="bg-surface-container p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           <div className="space-y-4">
-            <div className="flex items-center gap-3 pb-4 border-b border-outline-variant/20">
+            <div className="flex items-center gap-3 pb-4 border-b border-outline-variant/12">
               <div className="w-10 h-10 rounded-2xl bg-tertiary/10 flex items-center justify-center">
                 <Type className="w-5 h-5 text-tertiary" />
               </div>

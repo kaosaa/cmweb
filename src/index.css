@@ -8,7 +8,7 @@
 
 @theme inline {
   --font-sans: "Roboto", "Segoe UI", system-ui, sans-serif;
-  
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -16,6 +16,30 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-full: 9999px;
+
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+
+  @keyframes marble-shine {
+    0%, 100% {
+      background-position: -200% 0;
+    }
+    50% {
+      background-position: 200% 0;
+    }
+  }
 
   --color-background: var(--md-sys-color-background);
   --color-foreground: var(--md-sys-color-on-background);
@@ -247,6 +271,19 @@ html, body {
   animation: fade-in-up 0.4s cubic-bezier(0.0, 0.0, 0.2, 1) forwards;
 }
 
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
 /* Golden Ratio Utilities */
 .aspect-golden {
   aspect-ratio: 1.618 / 1;
@@ -258,38 +295,50 @@ html, body {
 @layer components {
   .glass-card {
     @apply relative overflow-hidden transition-all duration-300;
-    /* Increased transparency for better glass effect */
-    background: rgba(255, 255, 255, 0.45); 
+    /* 深色玻璃质感 - 类似 Todo 面板 */
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 
-      0 8px 32px 0 rgba(31, 38, 135, 0.07),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
   }
-  
+
   .dark .glass-card {
-    background: rgba(30, 30, 35, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.25),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
   }
 
   .glass-card-inverse {
     @apply relative overflow-hidden transition-all duration-300;
-    background: rgba(255, 255, 255, 0.55);
+    /* 用户消息框 - 稍微亮一点的深色玻璃 */
+    background: rgba(39, 39, 42, 0.8);
     backdrop-filter: blur(24px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 
-      0 8px 32px 0 rgba(31, 38, 135, 0.05),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
 
   .dark .glass-card-inverse {
-    background: rgba(60, 60, 65, 0.5);
+    background: rgba(39, 39, 42, 0.8);
+    backdrop-filter: blur(24px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.25),
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
       inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  /* 3D Transform Utilities for CometCard */
+  .perspective-distant {
+    perspective: 1000px;
+  }
+
+  .transform-3d {
+    transform-style: preserve-3d;
   }
 }

@@ -46,8 +46,8 @@ export function ChatDiffView({ oldStr, newStr }: { oldStr: string; newStr: strin
   }
 
   return (
-    <div className="rounded-lg bg-surface overflow-hidden border border-outline-variant/40">
-      <div className="flex text-xs border-b border-outline-variant/30 bg-surface-container-highest/30">
+    <div className="rounded-lg bg-surface overflow-hidden border border-outline-variant/20">
+      <div className="flex text-xs border-b border-outline-variant/15 bg-surface-container-highest/30">
         <div className="flex-1 px-3 py-2 bg-red-500/10 text-red-600 dark:text-red-400 font-medium">
           - {oldLines.length - prefixLen - suffixLen} 行删除
         </div>

@@ -124,7 +124,7 @@ export function ChatMessageList({
         const blockKey = `${m.id}_thinking_${blockIdx}`
         const isLatestBlock = blockIdx === thinkingForRender.length - 1
         // If it's the latest block and still thinking (durationMs is null), force it open initially if not set.
-        // But the user might want to collapse it. 
+        // But the user might want to collapse it.
         // Actually, let's keep the existing logic: open by default if thinking.
         const isActive = tb.durationMs == null
         const blockOpen = thinkingOpenById[blockKey] ?? (isActive ? isLatestBlock : false)
@@ -132,24 +132,24 @@ export function ChatMessageList({
         return (
           <div key={blockKey} className="w-full">
             <details
-              className="group rounded-2xl border border-tertiary/20 bg-tertiary/5 text-xs text-muted-foreground transition-all duration-200"
+              className="group rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 text-xs transition-all duration-200"
               open={blockOpen}
               onToggle={(e) => {
                 const open = (e.currentTarget as HTMLDetailsElement | null)?.open ?? false
                 setThinkingOpenById((prev) => ({ ...prev, [blockKey]: open }))
               }}
             >
-              <summary className="cursor-pointer select-none font-medium flex items-center justify-between p-3 text-tertiary hover:bg-tertiary/10 rounded-t-2xl group-[&:not([open])]:rounded-2xl transition-colors outline-none">
+              <summary className="cursor-pointer select-none font-medium flex items-center justify-between p-4 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-white/10 rounded-t-2xl group-[&:not([open])]:rounded-2xl transition-colors outline-none">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   <span>
                     {isActive ? '正在思考...' : `思考过程 (${formatSeconds(tb.durationMs)})`}
                   </span>
                 </div>
-                {isActive && <Spinner className="w-3.5 h-3.5 text-tertiary/70" />}
+                {isActive && <Spinner className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />}
               </summary>
-              <div className="p-3 pt-0 border-t border-tertiary/10">
-                <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-on-surface-variant/80">
+              <div className="p-4 pt-0 border-t border-white/20 dark:border-white/10">
+                <pre className="mt-3 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
                   {tb.text || '...'}
                 </pre>
               </div>
@@ -198,9 +198,9 @@ export function ChatMessageList({
               interleavedNodes.push(
                 <div
                   key={`md-${m.id}-${textCursor}`}
-                  className="rounded-2xl border border-outline-variant/30 glass-card p-5 shadow-sm"
+                  className="rounded-2xl border border-outline-variant/15 glass-card p-5 shadow-sm"
                 >
-                  <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none">
+                  <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none break-words overflow-wrap-anywhere">
                     <ChatMarkdown markdown={textChunk} />
                   </div>
                 </div>,
@@ -226,9 +226,9 @@ export function ChatMessageList({
             interleavedNodes.push(
               <div
                 key={`md-${m.id}-tail`}
-                className="rounded-2xl border border-outline-variant/30 glass-card p-5 shadow-sm"
+                className="rounded-2xl border border-outline-variant/15 glass-card p-5 shadow-sm"
               >
-                <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none">
+                <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none break-words overflow-wrap-anywhere">
                   <ChatMarkdown markdown={tail} />
                 </div>
               </div>,
@@ -309,7 +309,7 @@ export function ChatMessageList({
         <div
           className={cn(
             'relative px-5 py-4 text-sm md:text-base shadow-sm',
-            'glass-card-inverse text-on-surface border border-outline-variant/30',
+            'glass-card-inverse text-on-surface border border-outline-variant/15',
             'rounded-2xl',
             'max-w-[90%] md:max-w-[70%]',
           )}
@@ -321,7 +321,7 @@ export function ChatMessageList({
                   key={img.id}
                   type="button"
                   onClick={() => onPreviewImage(img.url, img.fileName)}
-                  className="block overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-highest/40 transition-transform hover:scale-[1.02] outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className="block overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container-highest/40 transition-transform hover:scale-[1.02] outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                   title={img.fileName}
                 >
                   <img src={img.url} alt={img.fileName} className="h-28 w-full object-cover" loading="lazy" />

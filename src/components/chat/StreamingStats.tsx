@@ -63,7 +63,7 @@ export function StreamingStats({ stats, busy }: StreamingStatsProps) {
           </div>
         )}
 
-        <div className="text-muted-foreground/70 border-l border-outline-variant/30 pl-3">
+        <div className="text-muted-foreground/70 border-l border-outline-variant/15 pl-3">
           {totalChars > 0 && (
             <span className="mr-2">{formatNumber(totalChars)} 字符</span>
           )}

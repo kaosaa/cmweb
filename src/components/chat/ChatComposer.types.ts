@@ -1,4 +1,5 @@
 import type { DraftImage } from '@/types/chat'
+import type { PermissionMode } from '@/types/permissions'
 
 export type ChatComposerProps = {
   activeSessionId: string | null
@@ -19,5 +20,8 @@ export type ChatComposerProps = {
   canSend: boolean
   onSend: () => Promise<void>
   onCancel: () => void
+  permissionMode: PermissionMode
+  onPermissionModeChange: (mode: PermissionMode) => void
+  onCompactSession: () => void
 }
 

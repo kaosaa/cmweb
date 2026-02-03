@@ -116,39 +116,31 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
   const outputPreview = isEditTool && editSummary ? editSummary : getToolOutputPreview(tool.output)
 
   return (
-    <details className="rounded-xl border border-outline-variant/60 bg-surface-container-low p-3 text-xs mb-2 transition-all open:ring-1 open:ring-primary/20">
+    <details className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-3 text-xs mb-2 transition-all open:ring-1 open:ring-primary/20">
       <summary className="cursor-pointer select-none font-medium flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
-        <span
-          className={cn(
-            'inline-flex items-center justify-center w-7 h-7 rounded-lg ring-1 ring-inset',
-            meta.bgColor,
-            meta.color,
-            'ring-outline-variant/30',
-          )}
-        >
-          <Icon className="w-4 h-4" />
-        </span>
-        <span className="font-semibold">{meta.label}</span>
-        <code className="px-1.5 py-0.5 rounded bg-surface-container-highest/60 text-[10px] font-mono text-muted-foreground">
-          {tool.name}
-        </code>
-        {statusBadge}
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <span className="font-semibold">{meta.label}</span>
+          <code className="px-1.5 py-0.5 rounded bg-surface-container-highest/60 text-[10px] font-mono text-muted-foreground">
+            {tool.name}
+          </code>
+          {statusBadge}
+        </div>
         {inputPreview ? (
-          <span className="ml-1 text-muted-foreground font-mono text-[11px]" title={inputPreview}>
-            · {inputPreview}
+          <span className="text-muted-foreground font-mono text-[11px] flex-1 min-w-0 break-words" title={inputPreview}>
+            {inputPreview}
           </span>
         ) : null}
         {outputPreview && !isError ? (
-          <span className="ml-1 text-muted-foreground truncate max-w-[180px]" title={tool.output || ''}>
+          <span className="text-muted-foreground flex-1 min-w-0 break-words max-w-[180px]" title={tool.output || ''}>
             → {outputPreview}
           </span>
         ) : null}
       </summary>
-      <div className="mt-3 space-y-3 pl-2 border-l-2 border-outline-variant/30 ml-1">
+      <div className="mt-3 space-y-3 pl-2 border-l-2 border-outline-variant/15 ml-1">
         {isEditTool && editInput?.old_string != null && editInput?.new_string != null ? (
           <div>
             {editInput.file_path ? (
-              <div className="mb-2 text-[10px] font-semibold text-muted-foreground font-mono">📄 {toRelativePath(editInput.file_path, cwd)}</div>
+              <div className="mb-2 text-[10px] font-semibold text-muted-foreground font-mono">{toRelativePath(editInput.file_path, cwd)}</div>
             ) : null}
             <ChatDiffView oldStr={editInput.old_string} newStr={editInput.new_string} />
           </div>
