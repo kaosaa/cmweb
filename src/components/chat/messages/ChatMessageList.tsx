@@ -162,22 +162,22 @@ export function ChatMessageList({
       const apiError = parseApiError(content)
       if (apiError.isError) {
         interleavedNodes.push(
-          <div key={`error-${m.id}`} className="rounded-2xl border-2 border-destructive/30 bg-destructive/5 p-4">
+          <div key={`error-${m.id}`} className="rounded-2xl bg-red-500/10 backdrop-blur-xl shadow-lg ring-1 ring-red-500/20 p-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                <ShieldAlert className="w-5 h-5 text-destructive" />
+              <div className="w-10 h-10 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-5 h-5 text-red-500 dark:text-red-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold text-destructive">{apiError.errorType}</span>
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">{apiError.errorType}</span>
                 </div>
-                <p className="text-sm text-on-surface leading-relaxed break-words">{apiError.message}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed break-words">{apiError.message}</p>
                 {apiError.details && apiError.details !== apiError.message ? (
                   <details className="mt-2">
-                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-on-surface-variant">
+                    <summary className="text-xs text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200">
                       查看详细信息
                     </summary>
-                    <pre className="mt-2 p-2 rounded-lg bg-surface-container-highest/50 text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto">
+                    <pre className="mt-2 p-2 rounded-lg bg-white/30 dark:bg-white/10 backdrop-blur-sm text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto">
                       {apiError.details}
                     </pre>
                   </details>
@@ -198,9 +198,9 @@ export function ChatMessageList({
               interleavedNodes.push(
                 <div
                   key={`md-${m.id}-${textCursor}`}
-                  className="rounded-2xl border border-outline-variant/15 glass-card p-5 shadow-sm"
+                  className="rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 p-5"
                 >
-                  <div className="prose-sm md:prose-base dark:prose-invert text-on-surface max-w-none break-words overflow-wrap-anywhere">
+                  <div className="prose-sm md:prose-base dark:prose-invert text-gray-700 dark:text-gray-300 max-w-none break-words overflow-wrap-anywhere">
                     <ChatMarkdown markdown={textChunk} />
                   </div>
                 </div>,

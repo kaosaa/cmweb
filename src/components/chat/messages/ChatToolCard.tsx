@@ -116,58 +116,58 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
   const outputPreview = isEditTool && editSummary ? editSummary : getToolOutputPreview(tool.output)
 
   return (
-    <details className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-3 text-xs mb-2 transition-all open:ring-1 open:ring-primary/20">
-      <summary className="cursor-pointer select-none font-medium flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors">
+    <details className="rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-white/20 p-4 text-xs mb-2 transition-all open:ring-2 open:ring-white/30">
+      <summary className="cursor-pointer select-none font-medium flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
         <div className="flex items-center gap-2 flex-wrap shrink-0">
           <span className="font-semibold">{meta.label}</span>
-          <code className="px-1.5 py-0.5 rounded bg-surface-container-highest/60 text-[10px] font-mono text-muted-foreground">
+          <code className="px-1.5 py-0.5 rounded bg-white/30 dark:bg-white/10 text-[10px] font-mono text-gray-600 dark:text-gray-400">
             {tool.name}
           </code>
           {statusBadge}
         </div>
         {inputPreview ? (
-          <span className="text-muted-foreground font-mono text-[11px] flex-1 min-w-0 break-words" title={inputPreview}>
+          <span className="text-gray-600 dark:text-gray-400 font-mono text-[11px] flex-1 min-w-0 break-words" title={inputPreview}>
             {inputPreview}
           </span>
         ) : null}
         {outputPreview && !isError ? (
-          <span className="text-muted-foreground flex-1 min-w-0 break-words max-w-[180px]" title={tool.output || ''}>
+          <span className="text-gray-600 dark:text-gray-400 flex-1 min-w-0 break-words max-w-[180px]" title={tool.output || ''}>
             → {outputPreview}
           </span>
         ) : null}
       </summary>
-      <div className="mt-3 space-y-3 pl-2 border-l-2 border-outline-variant/15 ml-1">
+      <div className="mt-3 space-y-3 pl-3 border-l-2 border-white/20 dark:border-white/10 ml-1">
         {isEditTool && editInput?.old_string != null && editInput?.new_string != null ? (
           <div>
             {editInput.file_path ? (
-              <div className="mb-2 text-[10px] font-semibold text-muted-foreground font-mono">{toRelativePath(editInput.file_path, cwd)}</div>
+              <div className="mb-2 text-[10px] font-semibold text-gray-600 dark:text-gray-400 font-mono">{toRelativePath(editInput.file_path, cwd)}</div>
             ) : null}
             <ChatDiffView oldStr={editInput.old_string} newStr={editInput.new_string} />
           </div>
         ) : hasInput ? (
           <div>
-            <div className="mb-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">参数</div>
+            <div className="mb-1 text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">参数</div>
             <ToolPayloadView value={tool.input} />
           </div>
         ) : null}
         {hasOutput ? (
           <div>
-            <div className="mb-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+            <div className="mb-1 text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
               结果
               {isRefused ? (
-                <span className="text-muted-foreground">(已拒绝)</span>
+                <span className="text-gray-500 dark:text-gray-500">(已拒绝)</span>
               ) : isError ? (
-                <span className="text-destructive">(错误)</span>
+                <span className="text-red-500 dark:text-red-400">(错误)</span>
               ) : null}
             </div>
             <div
               className={cn(
-                'rounded-lg p-2.5',
+                'rounded-lg p-2.5 backdrop-blur-sm',
                 isRefused
-                  ? 'bg-muted/30 text-muted-foreground border border-border/50'
+                  ? 'bg-white/20 dark:bg-white/5 text-gray-600 dark:text-gray-400 ring-1 ring-white/20'
                   : isError
-                    ? 'bg-destructive/5 text-destructive'
-                    : 'bg-surface text-on-surface',
+                    ? 'bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20'
+                    : 'bg-white/30 dark:bg-white/10 text-gray-700 dark:text-gray-300 ring-1 ring-white/20',
               )}
             >
               <ToolPayloadView value={tool.output} />
