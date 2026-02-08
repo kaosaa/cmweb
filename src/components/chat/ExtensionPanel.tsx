@@ -1,0 +1,267 @@
+import React, { memo, useCallback } from 'react'
+import { cn } from '@/lib/utils'
+import { api } from '@/api/client'
+import { useFileExplorer, type DirCache } from '@/hooks/use-file-explorer'
+import {
+  Files,
+  FolderItem,
+  FolderTrigger,
+  FolderContent,
+  FileItem,
+} from '@/components/animate-ui/components/radix/files'
+import {
+  PanelRightClose,
+  PanelRightOpen,
+  FolderOpen,
+  RefreshCw,
+  Loader2,
+  ExternalLink,
+} from 'lucide-react'
+import { motion } from 'motion/react'
+import type { ChatSession } from '@/types/chat'
+
+export type ExtensionPanelProps = {
+  activeSession: ChatSession | null
+  activeModel: string
+  thinking: boolean
+  isOpen: boolean
+  onToggle: () => void
+}
+
+/** 面板展开/折叠的宽度常量 */
+const PANEL_WIDTH_OPEN = 280
+const PANEL_WIDTH_CLOSED = 40
+
+/** 右侧扩展面板：显示当前会话信息 + 文件浏览器 */
+export const ExtensionPanel = memo(function ExtensionPanel({
+  activeSession,
+  activeModel,
+  thinking,
+  isOpen,
+  onToggle,
+}: ExtensionPanelProps) {
+  const cwd = activeSession?.cwd
+  const { cache, loading, openFolders, onOpenChange, error, refresh } =
+    useFileExplorer(cwd)
+
+  const handleRevealInExplorer = useCallback(() => {
+    if (cwd) void api.fs.revealInExplorer(cwd)
+  }, [cwd])
+
+  const handleRefreshRoot = useCallback(() => {
+    if (cwd) refresh(cwd)
+  }, [cwd, refresh])
+
+  const rootEntry = cwd ? cache.get(cwd) : undefined
+  // 从 cwd 中提取最后一级文件夹名
+  const cwdName = cwd ? cwd.split(/[/\\]/).filter(Boolean).pop() || cwd : ''
+
+  return (
+    <motion.aside
+      initial={false}
+      animate={{ width: isOpen ? PANEL_WIDTH_OPEN : PANEL_WIDTH_CLOSED }}
+      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+      className={cn(
+        'fixed top-0 right-0 h-full z-20 overflow-hidden',
+        'flex flex-col',
+        'bg-white/80 dark:bg-black/75 backdrop-blur-xl',
+        'border-l border-gray-200/50 dark:border-white/10',
+      )}
+    >
+      {/* 折叠态：仅显示展开按钮 */}
+      {!isOpen && (
+        <div className="flex flex-col items-center pt-4 w-[40px]">
+          <button
+            type="button"
+            onClick={onToggle}
+            className="p-2 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-200/50 dark:text-zinc-500 dark:hover:text-white dark:hover:bg-zinc-800/50 transition-colors"
+            title="展开面板"
+          >
+            <PanelRightOpen className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* 展开态：完整面板内容 */}
+      {isOpen && (
+        <div className="flex flex-col h-full" style={{ width: PANEL_WIDTH_OPEN }}>
+          {/* 面板头部：会话信息 */}
+          <div className="shrink-0 px-4 pt-4 pb-3 border-b border-gray-200/50 dark:border-white/10">
+            <div className="flex items-center justify-between mb-2">
+              <h2
+                className="text-sm font-semibold text-gray-800 dark:text-white truncate flex-1 mr-2"
+                title={activeSession?.title || '无会话'}
+              >
+                {activeSession?.title || '无活跃会话'}
+              </h2>
+              <button
+                type="button"
+                onClick={onToggle}
+                className="shrink-0 p-1.5 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-200/50 dark:text-zinc-500 dark:hover:text-white dark:hover:bg-zinc-800/50 transition-colors"
+                title="折叠面板"
+              >
+                <PanelRightClose className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 模型 + thinking 状态 */}
+            {activeModel && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-zinc-400 mb-2">
+                <span
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full shrink-0',
+                    thinking ? 'bg-tertiary animate-pulse' : 'bg-primary',
+                  )}
+                />
+                <span className="truncate">{activeModel}</span>
+              </div>
+            )}
+
+            {/* 工作目录 */}
+            {cwd && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-zinc-400">
+                <FolderOpen className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-zinc-500" />
+                <span className="truncate flex-1" title={cwd}>
+                  {cwdName}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRevealInExplorer}
+                  className="shrink-0 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                  title="在资源管理器中打开"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRefreshRoot}
+                  className="shrink-0 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                  title="刷新"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 文件树区域 */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            {!activeSession && (
+              <div className="px-4 py-8 text-center text-xs text-gray-400 dark:text-zinc-600">
+                选择一个会话以查看文件
+              </div>
+            )}
+
+            {activeSession && !rootEntry && loading.has(cwd!) && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400 dark:text-zinc-500" />
+              </div>
+            )}
+
+            {error && (
+              <div className="px-4 py-4 text-xs text-red-500 dark:text-red-400">
+                {error}
+              </div>
+            )}
+
+            {rootEntry && (
+              <Files
+                open={openFolders}
+                onOpenChange={onOpenChange}
+                className="text-gray-700 dark:text-zinc-300"
+              >
+                <DirectoryContents
+                  directories={rootEntry.directories}
+                  files={rootEntry.files}
+                  cache={cache}
+                  loading={loading}
+                />
+              </Files>
+            )}
+          </div>
+        </div>
+      )}
+    </motion.aside>
+  )
+})
+
+// ─── 文件树递归渲染 ───────────────────────────────────────
+
+type DirectoryContentsProps = {
+  directories: { name: string; fullPath: string }[]
+  files: { name: string; fullPath: string }[]
+  cache: DirCache
+  loading: Set<string>
+}
+
+/** 渲染一层目录内容（文件夹 + 文件），文件夹内部递归 */
+const DirectoryContents = memo(function DirectoryContents({
+  directories,
+  files,
+  cache,
+  loading,
+}: DirectoryContentsProps) {
+  return (
+    <>
+      {directories.map((dir) => (
+        <LazyFolder
+          key={dir.fullPath}
+          name={dir.name}
+          fullPath={dir.fullPath}
+          cache={cache}
+          loading={loading}
+        />
+      ))}
+      {files.map((file) => (
+        <FileItem key={file.fullPath} className="text-xs">
+          {file.name}
+        </FileItem>
+      ))}
+    </>
+  )
+})
+
+type LazyFolderProps = {
+  name: string
+  fullPath: string
+  cache: DirCache
+  loading: Set<string>
+}
+
+/** 单个文件夹节点，展开时从 cache 中读取子内容或显示 loading */
+const LazyFolder = memo(function LazyFolder({
+  name,
+  fullPath,
+  cache,
+  loading,
+}: LazyFolderProps) {
+  const entry = cache.get(fullPath)
+  const isLoading = loading.has(fullPath)
+
+  return (
+    <FolderItem value={fullPath}>
+      <FolderTrigger className="text-xs">{name}</FolderTrigger>
+      <FolderContent>
+        {isLoading && !entry && (
+          <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-gray-400 dark:text-zinc-500">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>加载中…</span>
+          </div>
+        )}
+        {entry && (
+          <DirectoryContents
+            directories={entry.directories}
+            files={entry.files}
+            cache={cache}
+            loading={loading}
+          />
+        )}
+        {!isLoading && !entry && (
+          <div className="px-2 py-1.5 text-xs text-gray-400 dark:text-zinc-500">
+            空文件夹
+          </div>
+        )}
+      </FolderContent>
+    </FolderItem>
+  )
+})

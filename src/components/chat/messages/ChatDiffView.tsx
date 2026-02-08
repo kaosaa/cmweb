@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { cn } from '@/lib/utils'
 
-export function ChatDiffView({ oldStr, newStr }: { oldStr: string; newStr: string }) {
+export const ChatDiffView = memo(function ChatDiffView({ oldStr, newStr }: { oldStr: string; newStr: string }) {
   const oldLines = oldStr.split('\n')
   const newLines = newStr.split('\n')
 
@@ -89,5 +90,4 @@ export function ChatDiffView({ oldStr, newStr }: { oldStr: string; newStr: strin
       </pre>
     </div>
   )
-}
-
+})

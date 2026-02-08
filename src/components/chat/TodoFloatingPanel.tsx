@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, ListTodo, Loader2, ChevronsRight, GripVertical, FolderOpen, ChevronDown, ChevronRight } from 'lucide-react'
+import { CheckCircle2, Circle, ListTodo, Loader2, ChevronsRight, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { GlowingEffect } from '@/components/ui/glowing-effect'
@@ -9,12 +9,6 @@ export type TodoFloatingPanelProps = {
   todos: TodoItem[] | null
   open: boolean
   onOpenChange: (open: boolean) => void
-  activeSession?: {
-    title: string
-    cwd?: string
-  } | null
-  activeModel?: string
-  thinking?: boolean
 }
 
 type FloatPos = { x: number; y: number }
@@ -59,7 +53,7 @@ function getDefaultPosForViewport(): FloatPos {
   return { x, y: DEFAULT_POS.y }
 }
 
-export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, activeModel, thinking }: TodoFloatingPanelProps) {
+export function TodoFloatingPanel({ todos, open, onOpenChange }: TodoFloatingPanelProps) {
   if (!todos || todos.length < 1) return null
 
   const total = todos.length
@@ -69,7 +63,6 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
   const containerRef = useRef<HTMLDivElement | null>(null)
   const pillRef = useRef<HTMLButtonElement | null>(null)
   const suppressNextClickRef = useRef(false)
-  const [sessionInfoCollapsed, setSessionInfoCollapsed] = useState(false)
 
   const [pos, setPos] = useState<FloatPos>(() => {
     if (typeof window === 'undefined') return DEFAULT_POS
@@ -341,65 +334,6 @@ export function TodoFloatingPanel({ todos, open, onOpenChange, activeSession, ac
                 </div>
               )
             })}
-
-            {/* 当前会话信息 */}
-            {activeSession && (
-              <div
-                className={cn(
-                  'rounded-xl border px-3 py-2.5 text-xs transition-all duration-200',
-                  'border-gray-300/70 bg-gradient-to-br from-gray-50/80 to-white/70 hover:from-gray-100/90 hover:to-white/80 hover:border-gray-400/70',
-                  'dark:bg-none dark:border-zinc-800/50 dark:bg-zinc-900/50 dark:backdrop-blur-sm dark:hover:bg-zinc-800/50 dark:hover:border-zinc-700/50',
-                )}
-              >
-                <div className="flex items-start gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setSessionInfoCollapsed(!sessionInfoCollapsed)}
-                    className="shrink-0 mt-0.5 text-gray-600 hover:text-gray-800 transition-colors dark:text-zinc-500 dark:hover:text-zinc-300"
-                  >
-                    {sessionInfoCollapsed ? (
-                      <ChevronRight className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </button>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-gray-800 break-words leading-relaxed font-semibold dark:text-white">
-                      当前会话
-                    </div>
-                    {!sessionInfoCollapsed && (
-                      <div className="mt-2 space-y-1.5">
-                        <div className="text-gray-700 truncate dark:text-zinc-300" title={activeSession.title}>
-                          {activeSession.title}
-                        </div>
-                        <div className="flex items-center gap-2.5 text-[10px] text-gray-600 dark:text-zinc-400">
-                          {activeModel && (
-                            <div className="flex items-center gap-1">
-                              <span className={cn('w-1 h-1 rounded-full', thinking ? 'bg-tertiary' : 'bg-primary')} />
-                              <span className="truncate">{activeModel}</span>
-                            </div>
-                          )}
-                          {activeSession.cwd && (
-                            <div className="flex items-center gap-1 truncate" title={activeSession.cwd}>
-                              <FolderOpen className="w-2.5 h-2.5 shrink-0" />
-                              <span className="truncate">{activeSession.cwd}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div
-                    className={cn(
-                      'shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border',
-                      'bg-blue-500/15 text-blue-600 border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/30',
-                    )}
-                  >
-                    会话
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
         </div>

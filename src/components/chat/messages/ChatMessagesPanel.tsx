@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { extractLatestTodoWriteTodos } from '@/utils/todos'
@@ -22,7 +22,7 @@ function formatNumber(n: number): string {
   }
 }
 
-export function ChatMessagesPanel({
+export const ChatMessagesPanel = memo(function ChatMessagesPanel({
   activeSession,
   busy,
   streamingAssistantId,
@@ -88,7 +88,7 @@ export function ChatMessagesPanel({
     }
   }, [busy])
 
-  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     if (scrollContainerRef.current) {
       const { scrollHeight, clientHeight } = scrollContainerRef.current
       scrollContainerRef.current.scrollTo({
@@ -96,16 +96,15 @@ export function ChatMessagesPanel({
         behavior,
       })
     }
-  }
+  }, [])
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-      // If user is within 50px of the bottom, enable auto-scroll
       const isAtBottom = scrollHeight - scrollTop - clientHeight <= 50
       shouldAutoScrollRef.current = isAtBottom
     }
-  }
+  }, [])
 
   // Scroll on message updates if allowed
   useLayoutEffect(() => {
@@ -268,4 +267,4 @@ export function ChatMessagesPanel({
       </div>
     </div>
   )
-}
+})

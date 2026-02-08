@@ -1,10 +1,11 @@
+import { memo } from 'react'
 import type { ChatMessage } from '@/types/chat'
 import { cn } from '@/lib/utils'
 import { getInputPreview, getToolMeta } from '@/utils/tool-auth'
-import { getToolOutputPreview } from '@/utils/tool-payload'
+import { getToolOutputPreview, tryParseJson } from '@/utils/tool-payload'
 import { ChatDiffView } from './ChatDiffView'
 import { ToolPayloadView } from './ToolPayloadView'
-import { Terminal, ChevronDown } from 'lucide-react'
+import { Terminal, ChevronDown, AlertCircle } from 'lucide-react'
 
 type ChatToolCardProps = {
   message: ChatMessage
@@ -41,7 +42,7 @@ function toRelativePath(absPath: string, cwd?: string | null): string {
   return normPath
 }
 
-export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
+export const ChatToolCard = memo(function ChatToolCard({ message, cwd }: ChatToolCardProps) {
   const tool = message.tool
   if (!tool) return null
 
@@ -118,6 +119,22 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
 
   const isBashTool = tool.name === 'Bash'
 
+  // Parse bash output to extract stdout, stderr, etc.
+  const bashOutput = (() => {
+    if (!isBashTool || !hasOutput) return null
+    const parsed = typeof tool.output === 'string' ? tryParseJson(tool.output) : tool.output
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      const obj = parsed as Record<string, unknown>
+      return {
+        stdout: typeof obj.stdout === 'string' ? obj.stdout : null,
+        stderr: typeof obj.stderr === 'string' ? obj.stderr : null,
+        interrupted: obj.interrupted,
+        isImage: obj.isImage,
+      }
+    }
+    return null
+  })()
+
   return (
     <details className="rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-xl shadow-lg ring-1 ring-gray-200/50 dark:ring-transparent p-4 text-xs mb-2 transition-all open:ring-2 open:ring-gray-300/60 dark:open:ring-transparent group">
       <summary className="cursor-pointer select-none font-medium text-gray-800 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors [&::-webkit-details-marker]:hidden list-none">
@@ -156,6 +173,15 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
                 </span>
               </div>
             ) : null}
+            {/* Show stdout preview below bash command in summary */}
+            {isBashTool && bashOutput?.stdout && (
+              <div className="mt-3 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-sm p-4 shadow-sm ring-1 ring-white/30 dark:ring-white/10">
+                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">输出</div>
+                <pre className="font-mono text-[14px] text-gray-800 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words max-h-[200px] overflow-auto">
+                  {bashOutput.stdout}
+                </pre>
+              </div>
+            )}
           </div>
           <ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180 text-gray-500 dark:text-gray-400" />
         </div>
@@ -168,13 +194,63 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
             ) : null}
             <ChatDiffView oldStr={editInput.old_string} newStr={editInput.new_string} />
           </div>
-        ) : hasInput ? (
+        ) : hasInput && !isBashTool ? (
           <div>
             <div className="mb-1 text-[10px] font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">参数</div>
             <ToolPayloadView value={tool.input} />
           </div>
         ) : null}
-        {hasOutput ? (
+
+        {/* Special handling for Bash tool output */}
+        {isBashTool && hasOutput && bashOutput ? (
+          <div className="space-y-4">
+            {/* stdout section */}
+            {bashOutput.stdout && (
+              <div>
+                <div className="mb-2 text-[10px] font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide">标准输出 (stdout)</div>
+                <div className="rounded-xl bg-gray-50/60 dark:bg-black/40 backdrop-blur-sm p-4 shadow-sm ring-1 ring-gray-200/50 dark:ring-white/10">
+                  <pre className="font-mono text-[14px] text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap break-words max-h-[500px] overflow-auto">
+                    {bashOutput.stdout}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* stderr section */}
+            {bashOutput.stderr && (
+              <div>
+                <div className="mb-2 text-[10px] font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  错误输出 (stderr)
+                </div>
+                <div className="rounded-xl bg-red-50/60 dark:bg-red-950/30 backdrop-blur-sm p-4 shadow-sm ring-1 ring-red-200/50 dark:ring-red-500/20">
+                  <pre className="font-mono text-[14px] text-red-700 dark:text-red-300 leading-relaxed whitespace-pre-wrap break-words max-h-[500px] overflow-auto">
+                    {bashOutput.stderr}
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* interrupted indicator */}
+            {bashOutput.interrupted && (
+              <div className="rounded-xl bg-amber-50/60 dark:bg-amber-950/30 backdrop-blur-sm p-3 shadow-sm ring-1 ring-amber-200/50 dark:ring-amber-500/20">
+                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                  <AlertCircle className="w-4 h-4" />
+                  <span className="text-[12px] font-medium">命令被中断</span>
+                </div>
+              </div>
+            )}
+
+            {/* isImage indicator */}
+            {bashOutput.isImage && (
+              <div className="rounded-xl bg-blue-50/60 dark:bg-blue-950/30 backdrop-blur-sm p-3 shadow-sm ring-1 ring-blue-200/50 dark:ring-blue-500/20">
+                <div className="text-blue-700 dark:text-blue-400 text-[12px] font-medium">
+                  输出包含图像数据
+                </div>
+              </div>
+            )}
+          </div>
+        ) : hasOutput && !isBashTool ? (
           <div>
             <div className="mb-1 text-[10px] font-semibold text-gray-700 dark:text-gray-400 uppercase tracking-wide flex items-center gap-2">
               结果
@@ -201,4 +277,4 @@ export function ChatToolCard({ message, cwd }: ChatToolCardProps) {
       </div>
     </details>
   )
-}
+})

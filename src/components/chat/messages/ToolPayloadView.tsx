@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { cn } from '@/lib/utils'
 import { getJsonSummary, tryParseJson } from '@/utils/tool-payload'
 import type { ToolPayloadViewProps } from './ToolPayloadView.types'
@@ -58,7 +59,7 @@ function ToolKeyValueList({
   )
 }
 
-export function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
+export const ToolPayloadView = memo(function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
   if (value == null) return <span className="text-gray-500 dark:text-gray-500">—</span>
 
   if (typeof value === 'string') {
@@ -123,5 +124,5 @@ export function ToolPayloadView({ value, maxDepth = 2 }: ToolPayloadViewProps) {
   }
 
   return <code className="rounded-lg bg-gray-100/60 dark:bg-white/10 backdrop-blur-sm px-3 py-1.5 font-mono text-[13px] text-gray-800 dark:text-gray-300">{String(value)}</code>
-}
+})
 

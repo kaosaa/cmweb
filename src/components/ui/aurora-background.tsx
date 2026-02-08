@@ -17,13 +17,15 @@ export const AuroraBackground = ({
     <div
       className={cn(
         "transition-bg relative flex h-full w-full flex-col",
+        // 浅色模式：柔和渐变
         "bg-gradient-to-br from-slate-50 via-white to-blue-50/30",
-        "dark:bg-none dark:bg-black",
+        // 深色模式：纯黑深邃底色
+        "dark:bg-none dark:bg-[#050507]",
         className,
       )}
       {...props}
     >
-      {/* 浅色模式极光 - 只在浅色模式显示 */}
+      {/* ── 浅色模式极光（保持不变） ── */}
       <div className="absolute inset-0 overflow-hidden dark:hidden pointer-events-none">
         <div
           className="absolute -inset-[10px] opacity-40 blur-[80px] will-change-transform"
@@ -70,38 +72,59 @@ export const AuroraBackground = ({
         />
       </div>
 
-      {/* 深色模式极光 - 只在深色模式显示 - 100%原始仓库代码 */}
-      <div
-        className="hidden dark:block absolute inset-0 overflow-hidden"
-        style={
-          {
-            "--aurora":
-              "repeating-linear-gradient(100deg,#3b82f6_10%,#a5b4fc_15%,#93c5fd_20%,#ddd6fe_25%,#60a5fa_30%)",
-            "--dark-gradient":
-              "repeating-linear-gradient(100deg,#000_0%,#000_7%,transparent_10%,transparent_12%,#000_16%)",
-            "--white-gradient":
-              "repeating-linear-gradient(100deg,#fff_0%,#fff_7%,transparent_10%,transparent_12%,#fff_16%)",
-
-            "--blue-300": "#93c5fd",
-            "--blue-400": "#60a5fa",
-            "--blue-500": "#3b82f6",
-            "--indigo-300": "#a5b4fc",
-            "--violet-200": "#ddd6fe",
-            "--black": "#000",
-            "--white": "#fff",
-            "--transparent": "transparent",
-          } as React.CSSProperties
-        }
-      >
+      {/* ── 深色模式：深邃暗色背景 ── */}
+      <div className="hidden dark:block absolute inset-0 overflow-hidden pointer-events-none">
+        {/* 底层：深黑径向渐变，营造深渊般的纵深 */}
         <div
-          className={cn(
-            `after:animate-aurora pointer-events-none absolute -inset-[10px] [background-image:var(--white-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-20 blur-[40px] invert filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--blue-500)_10%,var(--indigo-300)_15%,var(--blue-300)_20%,var(--violet-200)_25%,var(--blue-400)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)] after:absolute after:inset-0 after:[background-image:var(--white-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:fixed] after:mix-blend-difference after:content-[""] dark:[background-image:var(--dark-gradient),var(--aurora)] dark:invert-0 after:dark:[background-image:var(--dark-gradient),var(--aurora)]`,
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 80% 50% at 50% 0%, rgba(8, 8, 18, 1) 0%, transparent 65%),
+              radial-gradient(ellipse 70% 45% at 100% 100%, rgba(5, 5, 14, 0.9) 0%, transparent 55%),
+              radial-gradient(ellipse 50% 40% at 0% 80%, rgba(6, 4, 16, 0.7) 0%, transparent 45%)
+            `,
+          }}
+        />
 
-            showRadialGradient &&
-              `[mask-image:radial-gradient(ellipse_at_100%_0%,black_10%,var(--transparent)_70%)]`,
-          )}
-        ></div>
+        {/* 中层：极暗的色彩光晕，仅隐约可见 */}
+        <div
+          className="absolute -inset-[20px] opacity-[0.04] blur-[140px]"
+          style={{
+            background: `
+              radial-gradient(ellipse at 10% 15%, #4338ca 0%, transparent 50%),
+              radial-gradient(ellipse at 90% 20%, #6d28d9 0%, transparent 45%),
+              radial-gradient(ellipse at 45% 85%, #1e3a5f 0%, transparent 50%)
+            `,
+          }}
+        />
+
+        {/* 上层：极微弱的顶部边缘光 */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            background: `
+              linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 8%),
+              linear-gradient(0deg, rgba(255,255,255,0.01) 0%, transparent 5%)
+            `,
+          }}
+        />
+
+        {/* 纹理层：几乎不可见的噪点，增加质感 */}
+        <div
+          className="absolute inset-0 opacity-[0.008]"
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at 20% 50%, white 0.5px, transparent 0.5px),
+              radial-gradient(circle at 80% 30%, white 0.5px, transparent 0.5px),
+              radial-gradient(circle at 50% 70%, white 0.5px, transparent 0.5px),
+              radial-gradient(circle at 35% 15%, white 0.5px, transparent 0.5px),
+              radial-gradient(circle at 65% 85%, white 0.5px, transparent 0.5px)
+            `,
+            backgroundSize: "200px 200px, 150px 180px, 180px 160px, 160px 200px, 170px 190px",
+          }}
+        />
       </div>
+
       {children}
     </div>
   );

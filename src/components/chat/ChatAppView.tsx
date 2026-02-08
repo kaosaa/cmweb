@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/Modal'
@@ -13,6 +13,7 @@ import type { ChatAppViewProps } from './ChatAppView.types'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatComposer } from './ChatComposer'
 import { TodoFloatingPanel } from './TodoFloatingPanel'
+import { ExtensionPanel } from './ExtensionPanel'
 import { ChatMessagesPanel } from './messages/ChatMessagesPanel'
 import { FolderOpen, Type, Eye, EyeOff } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -67,6 +68,7 @@ export function ChatAppView({
   const [todoPanelOpen, setTodoPanelOpen] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [immersiveMode, setImmersiveMode] = useState(false)
+  const [extensionOpen, setExtensionOpen] = useState(true)
 
   const todos = useMemo(() => extractLatestTodoWriteTodos(activeSession?.messages), [activeSession?.messages])
 
@@ -74,8 +76,18 @@ export function ChatAppView({
     setTodoPanelOpen(true)
   }, [activeSession?.id])
 
+  // 稳定回调引用，避免子组件不必要的重渲染
+  const handleClearError = useCallback(() => setError(null), [setError])
+  const handlePreviewImage = useCallback((src: string, alt?: string) => setPreviewImage({ src, alt }), [])
+  const handleCompactSession = useCallback(() => void compactActiveSession(), [compactActiveSession])
+  const handleSelectSession = useCallback((id: string) => setActiveSessionId(id), [setActiveSessionId])
+  const handleRequestDelete = useCallback((id: string, title: string) => setDeleteConfirm({ id, title }), [setDeleteConfirm])
+  const handleToggleCollapse = useCallback(() => setSidebarCollapsed((prev) => !prev), [])
+  const handleToggleExtension = useCallback(() => setExtensionOpen((prev) => !prev), [])
+  const handleToggleImmersive = useCallback(() => setImmersiveMode((prev) => !prev), [])
+
   return (
-    <div className="h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 selection:text-primary">
+    <div className="h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 selection:text-primary relative">
       {/* 侧边栏 - 固定定位，完全脱离文档流 */}
       <ChatSidebar
         sessions={sessions}
@@ -83,23 +95,24 @@ export function ChatAppView({
         activeSession={activeSession}
         activeModel={activeModel}
         busy={busy}
-        onSelectSession={(id) => setActiveSessionId(id)}
-        onRequestDelete={(id, title) => setDeleteConfirm({ id, title })}
+        onSelectSession={handleSelectSession}
+        onRequestDelete={handleRequestDelete}
         onOpenNewChat={openNewChat}
         onOpenSettings={openSettings}
         isCollapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onToggleCollapse={handleToggleCollapse}
       />
 
-      {/* 主内容区域 - 固定宽度，添加左侧 padding 避免被侧边栏遮挡 */}
-      <AuroraBackground className="h-full w-full pl-[80px] flex flex-col" showRadialGradient={false}>
+      {/* 主内容区域 - 绝对定位，左右边界分别避开侧边栏和扩展面板 */}
+      <AuroraBackground
+        className="absolute top-0 bottom-0 left-[80px] w-auto flex flex-col"
+        style={{ right: extensionOpen ? 280 : 40, transition: 'right 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }}
+        showRadialGradient={false}
+      >
         <TodoFloatingPanel
           todos={todos}
           open={todoPanelOpen}
           onOpenChange={setTodoPanelOpen}
-          activeSession={activeSession}
-          activeModel={activeModel}
-          thinking={thinking}
         />
 
         <ChatMessagesPanel
@@ -109,18 +122,19 @@ export function ChatAppView({
           thinkingOpenById={thinkingOpenById}
           setThinkingOpenById={setThinkingOpenById}
           error={error}
-          onClearError={() => setError(null)}
-          onPreviewImage={(src, alt) => setPreviewImage({ src, alt })}
+          onClearError={handleClearError}
+          onPreviewImage={handlePreviewImage}
           compactNotice={compactNotice}
           onClearCompactNotice={clearCompactNotice}
-          onCompactSession={() => void compactActiveSession()}
+          onCompactSession={handleCompactSession}
         />
 
         {/* 沉浸式模式切换按钮 - 固定在右下角 */}
         <motion.button
-          onClick={() => setImmersiveMode(!immersiveMode)}
+          onClick={handleToggleImmersive}
           className={cn(
-            'fixed bottom-6 right-6 z-30',
+            'fixed bottom-6 z-30',
+            extensionOpen ? 'right-[296px]' : 'right-[56px]',
             'h-12 w-12 rounded-full',
             'bg-white/70 dark:bg-black/40 backdrop-blur-xl',
             'border border-gray-300/30 dark:border-white/10',
@@ -202,6 +216,15 @@ export function ChatAppView({
           )}
         </AnimatePresence>
       </AuroraBackground>
+
+      {/* 右侧扩展面板 */}
+      <ExtensionPanel
+        activeSession={activeSession}
+        activeModel={activeModel}
+        thinking={thinking}
+        isOpen={extensionOpen}
+        onToggle={handleToggleExtension}
+      />
 
       <Modal
         open={newChatOpen}
