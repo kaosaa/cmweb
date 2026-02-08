@@ -1,7 +1,8 @@
 import type { ModelsResponse, ChatImage, ChatSession, ChatSessionSummary } from '@/types/chat'
+import { API_BASE } from '@/lib/platform'
 
 export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
     ...init,
   })
@@ -72,7 +73,7 @@ export async function openChatStream(
   body: { prompt: string; imageIds: string[] },
   signal: AbortSignal,
 ): Promise<Response> {
-  return fetch(`/api/chat/sessions/${encodeURIComponent(id)}/stream`, {
+  return fetch(`${API_BASE}/api/chat/sessions/${encodeURIComponent(id)}/stream`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -95,7 +96,7 @@ export async function uploadImageFile(file: File): Promise<ChatImage> {
   const fd = new FormData()
   fd.append('files', file, file.name)
 
-  const res = await fetch('/api/media/images', { method: 'POST', body: fd })
+  const res = await fetch(`${API_BASE}/api/media/images`, { method: 'POST', body: fd })
   const text = await res.text().catch(() => '')
   if (!res.ok) {
     let message = text || `${res.status} ${res.statusText}`

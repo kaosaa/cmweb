@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-cli/schema.json",
+  "identifier": "default",
+  "description": "CM 桌面端默认权限：窗口控制、自动更新、Shell 打开外部链接",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-title",
+    "core:window:allow-is-maximized",
+    "core:window:allow-is-minimized",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download-and-install",
+    "shell:allow-open",
+    "process:allow-restart",
+    "process:allow-exit"
+  ]
+}

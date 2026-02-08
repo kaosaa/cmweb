@@ -10,6 +10,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // Tauri 生产模式需要相对路径加载资源
+  base: './',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -24,6 +26,9 @@ export default defineConfig({
     },
   },
   server: {
+    // Tauri devUrl 需要固定端口
+    port: 5173,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:2778',

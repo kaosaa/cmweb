@@ -5,6 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/cm-logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Claude Code CLI 的本地 Web 界面（CM）。" />
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' http://127.0.0.1:2778 ws://127.0.0.1:2778; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: http://127.0.0.1:2778; font-src 'self' data:; worker-src 'self' blob:" />
 
     <title>CM (Claude Manager)</title>
   </head>

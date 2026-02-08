@@ -46,7 +46,7 @@ import type {
   ContentSearchResponse,
 } from '@/api/types'
 
-const API_BASE =''
+import { API_BASE } from '@/lib/platform'
 
 function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   if (!value || typeof value !== 'object') return false

@@ -85,6 +85,9 @@
   --golden-ratio: 1.61803398875;
   --radius: 1.5rem; /* Large rounded corners for MD3 */
 
+  /* Tauri 标题栏高度 */
+  --titlebar-height: 0px;
+
   /* Font Settings - Configurable via JS */
   --font-size-base: 16px;
   --font-weight-normal: 450;
@@ -343,4 +346,12 @@ html, body {
   .transform-3d {
     transform-style: preserve-3d;
   }
+}
+
+/* Tauri 桌面端：为自定义标题栏预留顶部空间 */
+.tauri {
+  --titlebar-height: 36px;
+}
+.tauri body {
+  padding-top: var(--titlebar-height);
 }

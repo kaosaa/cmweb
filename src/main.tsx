@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import TitleBar from '@/components/titlebar/TitleBar'
 import App from './ChatApp.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -12,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
       enableSystem
       disableTransitionOnChange
     >
+      <TitleBar />
       <App />
     </ThemeProvider>
   </StrictMode>,
