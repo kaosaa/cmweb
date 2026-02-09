@@ -5,23 +5,6 @@ import { extractLatestTodoWriteTodos } from '@/utils/todos'
 import { ChatMessageList } from './ChatMessageList'
 import type { ChatMessagesPanelProps } from './ChatMessagesPanel.types'
 
-const CONTEXT_HEADROOM_TOKENS = 10_000
-const DEFAULT_CONTEXT_WINDOW_TOKENS = 200_000
-
-function getContextBudgetTokens(model: string | null | undefined): number | null {
-  const m = (model || '').trim()
-  if (!m) return null
-  return Math.max(1, DEFAULT_CONTEXT_WINDOW_TOKENS - CONTEXT_HEADROOM_TOKENS)
-}
-
-function formatNumber(n: number): string {
-  try {
-    return n.toLocaleString()
-  } catch {
-    return String(n)
-  }
-}
-
 export const ChatMessagesPanel = memo(function ChatMessagesPanel({
   activeSession,
   busy,
@@ -51,35 +34,6 @@ export const ChatMessagesPanel = memo(function ChatMessagesPanel({
     return { total, completed }
   }, [todos])
 
-  const contextInfo = useMemo(() => {
-    const messages = activeSession?.messages
-    if (!Array.isArray(messages) || messages.length < 1) return null
-    const budget = getContextBudgetTokens(activeSession?.model)
-    if (!budget) return null
-
-    let usage: any = null
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-      const m: any = messages[i]
-      if (!m || typeof m !== 'object') continue
-      if (m.role !== 'assistant') continue
-      if (m.usage && typeof m.usage === 'object' && typeof m.usage.input_tokens === 'number') {
-        usage = m.usage
-        break
-      }
-    }
-    if (!usage) return null
-
-    const contextSize =
-      (usage.input_tokens || 0) +
-      (usage.cache_creation_input_tokens || 0) +
-      (usage.cache_read_input_tokens || 0)
-
-    const percentLeftRaw = 100 - (contextSize / budget) * 100
-    const percentLeft = Math.round(Math.max(0, Math.min(100, percentLeftRaw)))
-
-    return { contextSize, budget, percentLeft }
-  }, [activeSession?.messages, activeSession?.model])
-
   // Force auto-scroll when a new turn starts (busy becomes true)
   useEffect(() => {
     if (busy) {
@@ -106,14 +60,11 @@ export const ChatMessagesPanel = memo(function ChatMessagesPanel({
     }
   }, [])
 
-  // Scroll on message updates if allowed
+  // Scroll on message updates if allowed.
+  // 始终使用 'auto'（瞬时跳转），避免 smooth 动画与 virtualizer 高度变化冲突导致回弹。
   useLayoutEffect(() => {
     if (shouldAutoScrollRef.current) {
-      // Use 'auto' during heavy streaming for better performance/stickiness, 
-      // or 'smooth' if prefer animation. 'auto' is safer for rapid updates.
-      // But user requested "smooth". Let's try smooth. 
-      // If it's too jerky, we can switch to auto for streaming updates.
-      scrollToBottom(busy ? 'auto' : 'smooth')
+      scrollToBottom('auto')
     }
   }, [activeSession?.messages, busy])
 
@@ -121,7 +72,7 @@ export const ChatMessagesPanel = memo(function ChatMessagesPanel({
     <div
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-8 scroll-smooth relative z-0"
+      className="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-8 relative z-0"
     >
       <div className="max-w-4xl mx-auto space-y-8">
         {todos && todoStats ? (
@@ -219,7 +170,6 @@ export const ChatMessagesPanel = memo(function ChatMessagesPanel({
         ) : null}
 
         {activeSession?.messages?.length ? (
-          <>
             <ChatMessageList
               messages={activeSession.messages}
               busy={busy}
@@ -229,26 +179,8 @@ export const ChatMessagesPanel = memo(function ChatMessagesPanel({
               setThinkingOpenById={setThinkingOpenById}
               cwd={activeSession.cwd}
               onPreviewImage={onPreviewImage}
+              scrollContainerRef={scrollContainerRef}
             />
-
-            {contextInfo ? (
-              <div className="flex justify-center pt-2">
-                <div
-                  className={
-                    'rounded-full border px-4 py-2 text-xs font-semibold ' +
-                    (contextInfo.percentLeft <= 5
-                      ? 'bg-error/10 text-error border-error/20'
-                      : contextInfo.percentLeft <= 10
-                        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20'
-                        : 'bg-surface-container-highest/40 text-muted-foreground border-outline-variant/15')
-                  }
-                  title={`context ${contextInfo.contextSize} / ${contextInfo.budget} tokens`}
-                >
-                  {formatNumber(contextInfo.contextSize)} / {formatNumber(contextInfo.budget)} tokens · 剩余 {contextInfo.percentLeft}%
-                </div>
-              </div>
-            ) : null}
-          </>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-6 animate-fade-in-up">
             <div className="w-20 h-20 rounded-[2.5rem] bg-surface-container-high flex items-center justify-center shadow-inner">

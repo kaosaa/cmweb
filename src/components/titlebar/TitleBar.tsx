@@ -63,7 +63,7 @@ const TitleBar = React.memo(function TitleBar() {
     return (
       <header
         data-tauri-drag-region
-        className="fixed top-0 left-0 right-0 z-[9999] flex h-9 select-none items-center bg-black/20 backdrop-blur-xl"
+        className="absolute top-0 left-0 right-0 z-[9999] flex h-9 select-none items-center bg-black/20 backdrop-blur-xl"
       >
         {/* macOS 红绿灯按钮 - 左侧 */}
         <div className="flex items-center gap-2 pl-3">
@@ -101,7 +101,7 @@ const TitleBar = React.memo(function TitleBar() {
   return (
     <header
       data-tauri-drag-region
-      className="fixed top-0 left-0 right-0 z-[9999] flex h-9 select-none items-center bg-black/20 backdrop-blur-xl"
+      className="absolute top-0 left-0 right-0 z-[9999] flex h-9 select-none items-center bg-black/20 backdrop-blur-xl"
     >
       <span
         data-tauri-drag-region

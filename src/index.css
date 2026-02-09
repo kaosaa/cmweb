@@ -348,10 +348,7 @@ html, body {
   }
 }
 
-/* Tauri 桌面端：为自定义标题栏预留顶部空间 */
+/* Tauri 桌面端：标题栏高度变量 */
 .tauri {
   --titlebar-height: 36px;
-}
-.tauri body {
-  padding-top: var(--titlebar-height);
 }

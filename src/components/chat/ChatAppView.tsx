@@ -15,6 +15,8 @@ import { ChatComposer } from './ChatComposer'
 import { TodoFloatingPanel } from './TodoFloatingPanel'
 import { ExtensionPanel } from './ExtensionPanel'
 import { ChatMessagesPanel } from './messages/ChatMessagesPanel'
+import TitleBar from '@/components/titlebar/TitleBar'
+import { isTauri } from '@/lib/platform'
 import { FolderOpen, Type, Eye, EyeOff } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 
@@ -88,6 +90,9 @@ export function ChatAppView({
 
   return (
     <div className="h-screen w-full bg-background text-foreground overflow-hidden font-sans selection:bg-primary/20 selection:text-primary relative">
+      {/* Tauri 桌面端自定义标题栏 */}
+      <TitleBar />
+
       {/* 侧边栏 - 固定定位，完全脱离文档流 */}
       <ChatSidebar
         sessions={sessions}
@@ -105,7 +110,7 @@ export function ChatAppView({
 
       {/* 主内容区域 - 绝对定位，左右边界分别避开侧边栏和扩展面板 */}
       <AuroraBackground
-        className="absolute top-0 bottom-0 left-[80px] w-auto flex flex-col"
+        className={cn("absolute left-[80px] w-auto flex flex-col", isTauri ? "top-9 bottom-2" : "top-0 bottom-0")}
         style={{ right: extensionOpen ? 280 : 40, transition: 'right 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }}
         showRadialGradient={false}
       >
@@ -181,7 +186,7 @@ export function ChatAppView({
               initial={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.3 }}
-              className="absolute bottom-0 left-0 right-4 p-4 md:p-6 bg-gradient-to-t from-white/90 via-white/40 to-transparent dark:from-black/80 dark:via-black/40 dark:to-transparent pointer-events-none z-20"
+              className="absolute bottom-0 left-0 right-4 px-4 pt-4 pb-8 md:px-6 md:pt-6 md:pb-10 bg-gradient-to-t from-white/90 via-white/40 to-transparent dark:from-black/80 dark:via-black/40 dark:to-transparent pointer-events-none z-20"
             >
               <div className="pointer-events-auto">
                 <ChatComposer

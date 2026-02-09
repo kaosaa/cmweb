@@ -69,6 +69,7 @@ export function useChatController() {
   const streamingUserIdRef = useRef<string | null>(null)
   const activeSessionIdRef = useRef<string | null>(null)
   const toolCallMsgIdsRef = useRef<Map<string, string>>(new Map())
+  const streamingStatsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatCwd, setNewChatCwd] = useState(() => {
@@ -107,8 +108,9 @@ export function useChatController() {
 
   const loadSessions = useCallback(async () => {
     const data = await listChatSessions()
-    setSessions(data)
-    return data
+    const list = Array.isArray(data) ? data : []
+    setSessions(list)
+    return list
   }, [])
 
   const loadSession = useCallback(async (id: string) => {
@@ -121,8 +123,9 @@ export function useChatController() {
     let canceled = false
     void (async () => {
       try {
-        const s = await listChatSessions()
+        const raw = await listChatSessions()
         if (canceled) return
+        const s = Array.isArray(raw) ? raw : []
         setSessions(s)
 
         let initialId: string | null = null
@@ -157,6 +160,12 @@ export function useChatController() {
 
   useEffect(() => {
     setThinkingOpenById({})
+    // 切换会话时清除旧的 streamingStats 延时
+    if (streamingStatsTimeoutRef.current) {
+      clearTimeout(streamingStatsTimeoutRef.current)
+      streamingStatsTimeoutRef.current = null
+    }
+    setStreamingStats(null)
   }, [activeSessionId])
 
   useEffect(() => {
@@ -165,6 +174,10 @@ export function useChatController() {
 
   useEffect(() => {
     if (!activeSessionId) return
+    // 切换会话时立即释放旧数据，减少内存峰值
+    setActiveSession(null)
+    // 中止正在进行的流式请求
+    abortRef.current?.abort()
     try {
       localStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, activeSessionId)
     } catch {
@@ -669,7 +682,8 @@ export function useChatController() {
       toolCallMsgIdsRef.current.clear()
       setBusy(false)
       // Clear streaming stats after a short delay so user can see final count
-      setTimeout(() => setStreamingStats(null), 3000)
+      if (streamingStatsTimeoutRef.current) clearTimeout(streamingStatsTimeoutRef.current)
+      streamingStatsTimeoutRef.current = setTimeout(() => setStreamingStats(null), 3000)
     }
   }, [activeSessionId, canSend, composerText, draftImages, loadSession, loadSessions])
 

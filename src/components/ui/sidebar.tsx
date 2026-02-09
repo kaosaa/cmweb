@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { isTauri } from "@/lib/platform";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, X } from "lucide-react";
@@ -88,7 +89,8 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "fixed left-0 top-0 bottom-0 z-40 px-4 py-4 hidden md:flex md:flex-col",
+          "fixed left-0 bottom-0 z-40 px-4 py-4 hidden md:flex md:flex-col",
+          isTauri ? "top-9" : "top-0",
           className
         )}
         animate={{

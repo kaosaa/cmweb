@@ -1,8 +1,8 @@
 import type { ModelsResponse, ChatImage, ChatSession, ChatSessionSummary } from '@/types/chat'
-import { API_BASE } from '@/lib/platform'
+import { API_BASE, platformFetch } from '@/lib/platform'
 
 export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await platformFetch(`${API_BASE}${path}`, {
     headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
     ...init,
   })
@@ -21,6 +21,11 @@ export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T>
         ? String((payload as { message?: unknown }).message ?? '')
         : ''
     throw new Error(msg || text || `${res.status} ${res.statusText}`)
+  }
+
+  // 成功响应但无法解析 JSON 时抛错，避免 null 通过类型断言传播
+  if (payload == null) {
+    throw new Error(`Empty response from ${path}`)
   }
 
   return payload as T
@@ -73,7 +78,7 @@ export async function openChatStream(
   body: { prompt: string; imageIds: string[] },
   signal: AbortSignal,
 ): Promise<Response> {
-  return fetch(`${API_BASE}/api/chat/sessions/${encodeURIComponent(id)}/stream`, {
+  return platformFetch(`${API_BASE}/api/chat/sessions/${encodeURIComponent(id)}/stream`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -96,7 +101,7 @@ export async function uploadImageFile(file: File): Promise<ChatImage> {
   const fd = new FormData()
   fd.append('files', file, file.name)
 
-  const res = await fetch(`${API_BASE}/api/media/images`, { method: 'POST', body: fd })
+  const res = await platformFetch(`${API_BASE}/api/media/images`, { method: 'POST', body: fd })
   const text = await res.text().catch(() => '')
   if (!res.ok) {
     let message = text || `${res.status} ${res.statusText}`

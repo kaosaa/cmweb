@@ -1,5 +1,6 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { cn } from '@/lib/utils'
+import { isTauri } from '@/lib/platform'
 import { api } from '@/api/client'
 import { useFileExplorer, type DirCache } from '@/hooks/use-file-explorer'
 import {
@@ -32,7 +33,26 @@ export type ExtensionPanelProps = {
 const PANEL_WIDTH_OPEN = 280
 const PANEL_WIDTH_CLOSED = 40
 
-/** 右侧扩展面板：显示当前会话信息 + 文件浏览器 */
+// ─── Context token 计算 ─────────────────────────────────
+
+const CONTEXT_HEADROOM_TOKENS = 10_000
+const DEFAULT_CONTEXT_WINDOW_TOKENS = 200_000
+
+function getContextBudgetTokens(model: string | null | undefined): number | null {
+  const m = (model || '').trim()
+  if (!m) return null
+  return Math.max(1, DEFAULT_CONTEXT_WINDOW_TOKENS - CONTEXT_HEADROOM_TOKENS)
+}
+
+function formatNumber(n: number): string {
+  try {
+    return n.toLocaleString()
+  } catch {
+    return String(n)
+  }
+}
+
+/** 右侧扩展面板：显示当前会话信息 + 文件浏览器 + context 用量 */
 export const ExtensionPanel = memo(function ExtensionPanel({
   activeSession,
   activeModel,
@@ -52,6 +72,36 @@ export const ExtensionPanel = memo(function ExtensionPanel({
     if (cwd) refresh(cwd)
   }, [cwd, refresh])
 
+  /** 从最近一条 assistant 消息的 usage 中推导 context 用量 */
+  const contextInfo = useMemo(() => {
+    const messages = activeSession?.messages
+    if (!Array.isArray(messages) || messages.length < 1) return null
+    const budget = getContextBudgetTokens(activeSession?.model)
+    if (!budget) return null
+
+    let usage: any = null
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const m: any = messages[i]
+      if (!m || typeof m !== 'object') continue
+      if (m.role !== 'assistant') continue
+      if (m.usage && typeof m.usage === 'object' && typeof m.usage.input_tokens === 'number') {
+        usage = m.usage
+        break
+      }
+    }
+    if (!usage) return null
+
+    const contextSize =
+      (usage.input_tokens || 0) +
+      (usage.cache_creation_input_tokens || 0) +
+      (usage.cache_read_input_tokens || 0)
+
+    const percentLeftRaw = 100 - (contextSize / budget) * 100
+    const percentLeft = Math.round(Math.max(0, Math.min(100, percentLeftRaw)))
+
+    return { contextSize, budget, percentLeft }
+  }, [activeSession?.messages, activeSession?.model])
+
   const rootEntry = cwd ? cache.get(cwd) : undefined
   // 从 cwd 中提取最后一级文件夹名
   const cwdName = cwd ? cwd.split(/[/\\]/).filter(Boolean).pop() || cwd : ''
@@ -62,7 +112,8 @@ export const ExtensionPanel = memo(function ExtensionPanel({
       animate={{ width: isOpen ? PANEL_WIDTH_OPEN : PANEL_WIDTH_CLOSED }}
       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
-        'fixed top-0 right-0 h-full z-20 overflow-hidden',
+        'fixed right-0 z-20 overflow-hidden',
+        isTauri ? 'top-9 bottom-2' : 'top-0 bottom-0',
         'flex flex-col',
         'bg-white/80 dark:bg-black/75 backdrop-blur-xl',
         'border-l border-gray-200/50 dark:border-white/10',
@@ -179,6 +230,26 @@ export const ExtensionPanel = memo(function ExtensionPanel({
               </Files>
             )}
           </div>
+
+          {/* Context 用量指示器 — 玻璃质感，固定在面板底部 */}
+          {contextInfo ? (
+            <div className="shrink-0 px-4 py-3 flex justify-center">
+              <div
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-[11px] font-medium text-center',
+                  'backdrop-blur-md shadow-sm',
+                  contextInfo.percentLeft <= 5
+                    ? 'bg-red-500/15 text-red-600 dark:bg-red-500/20 dark:text-red-400'
+                    : contextInfo.percentLeft <= 10
+                      ? 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
+                      : 'bg-gray-200/40 text-gray-600 dark:bg-white/10 dark:text-zinc-400',
+                )}
+                title={`context ${contextInfo.contextSize} / ${contextInfo.budget} tokens`}
+              >
+                {formatNumber(contextInfo.contextSize)} / {formatNumber(contextInfo.budget)} tokens · 剩余 {contextInfo.percentLeft}%
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </motion.aside>

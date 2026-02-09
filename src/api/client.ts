@@ -46,7 +46,7 @@ import type {
   ContentSearchResponse,
 } from '@/api/types'
 
-import { API_BASE } from '@/lib/platform'
+import { API_BASE, platformFetch } from '@/lib/platform'
 
 function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   if (!value || typeof value !== 'object') return false
@@ -60,7 +60,7 @@ function isApiResponse(value: unknown): value is ApiResponse<unknown> {
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await platformFetch(`${API_BASE}${path}`, {
     headers: {
       'content-type': 'application/json',
       ...(init?.headers ?? {}),

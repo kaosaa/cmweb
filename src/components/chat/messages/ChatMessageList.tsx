@@ -1,4 +1,5 @@
-import { memo, useMemo, type Dispatch, type SetStateAction } from 'react'
+import { memo, useCallback, useMemo, type Dispatch, type SetStateAction } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Bot, ShieldAlert, Sparkles, CircleUser, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
@@ -72,6 +73,12 @@ function buildMessageGroups(messages: ChatMessage[]): MessageGroup[] {
 
 // ─── 主组件 ──────────────────────────────────────────────
 
+/** 每个消息组的预估高度（px），用于虚拟列表初始布局。
+ *  偏大的估计值比偏小更稳定——高度缩小时滚动位置不会跳，高度增大时才会。 */
+const ESTIMATED_GROUP_HEIGHT = 300
+/** 视口外额外渲染的消息组数量，值越大快速滚动时空白越少，但 DOM 节点越多 */
+const OVERSCAN_COUNT = 8
+
 export const ChatMessageList = memo(function ChatMessageList({
   messages,
   busy,
@@ -81,17 +88,46 @@ export const ChatMessageList = memo(function ChatMessageList({
   setThinkingOpenById,
   cwd,
   onPreviewImage,
+  scrollContainerRef,
 }: ChatMessageListProps) {
   const groups = useMemo(() => buildMessageGroups(messages), [messages])
 
+  const virtualizer = useVirtualizer({
+    count: groups.length,
+    getScrollElement: () => scrollContainerRef.current,
+    estimateSize: () => ESTIMATED_GROUP_HEIGHT,
+    overscan: OVERSCAN_COUNT,
+  })
+
+  /** ref 回调：将 DOM 元素注册到 virtualizer 进行动态高度测量 */
+  const measureRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) virtualizer.measureElement(node)
+    },
+    [virtualizer],
+  )
+
   return (
-    <div className="flex flex-col pb-8">
-      {groups.map((g) => {
-        switch (g.kind) {
-          case 'assistant':
-            return (
+    <div
+      style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}
+    >
+      {virtualizer.getVirtualItems().map((virtualItem) => {
+        const g = groups[virtualItem.index]
+        return (
+          <div
+            key={g.message.id}
+            ref={measureRef}
+            data-index={virtualItem.index}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translateY(${virtualItem.start}px)`,
+            }}
+          >
+            {g.kind === 'assistant' ? (
               <AssistantMessageBlock
-                key={g.message.id}
                 message={g.message}
                 tools={g.tools}
                 busy={busy}
@@ -101,24 +137,19 @@ export const ChatMessageList = memo(function ChatMessageList({
                 setThinkingOpenById={setThinkingOpenById}
                 cwd={cwd}
               />
-            )
-          case 'user':
-            return (
+            ) : g.kind === 'user' ? (
               <UserMessageBlock
-                key={g.message.id}
                 message={g.message}
                 onPreviewImage={onPreviewImage}
               />
-            )
-          case 'orphan-tool':
-            return (
+            ) : (
               <OrphanToolBlock
-                key={g.message.id}
                 message={g.message}
                 cwd={cwd}
               />
-            )
-        }
+            )}
+          </div>
+        )
       })}
     </div>
   )
